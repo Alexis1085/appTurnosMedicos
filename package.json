@@ -1,0 +1,27 @@
+{
+  "name": "appturnosmedicos",
+  "version": "1.0.0",
+  "description": "App para Turnos Médicos de Alexis Iacusso - TP Final del curso PWITT de la UTN",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "turno",
+    "medico",
+    "pwi",
+    "turnera"
+  ],
+  "author": "Alexis Iacusso",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "hbs": "^4.2.0",
+    "mysql2": "^2.3.3",
+    "nodemailer": "^6.8.0",
+    "path": "^0.12.7"
+  }
+}
