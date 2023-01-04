@@ -16,15 +16,23 @@ primary key (usuarioMedico)
 
 -- Creación de la tabla de la entidad "Obras Sociales": --
 create table obrasSociales (
-idOS int unsigned zerofill auto_increment not null,
-usuarioMedico varchar(8) not null unique,
-osecac bool,
-osde bool,
-swiss bool,
-prevencion bool,
-pami bool,
-primary key (idOS),
-foreign key (usuarioMedico) references medicos(usuarioMedico)
+idOS int unsigned not null auto_increment,
+nombreObraSocial varchar(50),
+primary key (idOS)
+);
+
+-- Inserción de datos de Obras Sociales (esto es solo para el Trabajo Final del curso, debería conseguir un excel con el listado de todas las OS e importarlo) --
+INSERT INTO obrasSociales (nombreObraSocial) value ('PARTICULAR'), ('Pami'), ('OSECAC'), ('OSDE'), ('Prevención Salud'), ('Swiss Medical'), ('Construir Salud');
+
+-- Creación de la tabla intermedia entre Médicos y Obras Sociales que define qué Obras Sociales atiende cada Médico --
+create table osMedicos (
+id int unsigned not null auto_increment,
+usuarioMedico varchar(8) not null,
+idOS int unsigned not null,
+comentario varchar(50), -- Campo adicional con vistas a futura funcionalidad en la que el médico pueda especificar posible PLUS o alguna otra particularidad de cada Obra Social --
+primary key (id),
+foreign key (usuarioMedico) references medicos(usuarioMedico),
+foreign key (idOS) references obrasSociales(idOS)
 );
 
 -- Creación de la tabla de la entidad "Modulos de Consultorios": --
@@ -51,8 +59,9 @@ apellidoPaciente varchar(50) not null,
 fechaNacimiento date not null,
 telefono varchar(20) not null,
 email varchar(50) not null,
-obraSocial varchar(20),
-primary key (usuarioPaciente)
+idOS int unsigned not null,
+primary key (usuarioPaciente),
+foreign key (idOS) references obrasSociales(idOS)
 );
 
 -- Creación de la tabla de la entidad "Turnos": --
@@ -66,3 +75,5 @@ primary key (idTurno),
 foreign key (idModulo) references modulos(idModulo),
 foreign key (usuarioPaciente) references pacientes(usuarioPaciente)
 );
+
+-- drop database turnosmedicos; --

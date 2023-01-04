@@ -1,0 +1,88 @@
+{{! Frmulario para el Registro de un nuevo Médico - Después veo si lo incluyo dentro de un Modal en el Home}}
+
+<div class="container">
+    <h2>Registrarse</h2>
+    <h4>Complete el formulario para registrarse como Médic@</h4>
+    <form action="/nuevoMedico" method="post">
+        <div class="mb-3">
+            <label for="usuarioMedico" class="form-label">DNI</label>
+            <input type="text" class="form-control" id="usuarioMedico" name="usuarioMedico" minlength="7" maxlength="8" aria-describedby="dniHelp" required>
+            <div id="dniHelp" class="form-text">Escriba su DNI solo con números, sin puntos ni comas.</div>
+        </div>
+        <div class="mb-3">
+            <label for="passMedico" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="passMedico" name="passMedico" minlength="8" maxlength="14" aria-describedby="passHelp" required>
+            <div id="passHelp" class="form-text">La contraseña deberá ser de 8-14 caracteres, contener letras y números y no debe contener espacios o caracteres especiales.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="nombreMedico" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombreMedico" name="nombreMedico" required>
+        </div>
+        <div class="mb-3">
+            <label for="apellidoMedico" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="apellidoMedico" name="apellidoMedico" required>
+        </div>
+        <div class="mb-3">
+            <label for="especialidad" class="form-label">Especialidad</label>
+            <input type="text" class="form-control" id="especialidad" name="especialidad" required>
+        </div>
+        <div class="mb-3">
+            <label for="resena" class="form-label">Escriba una breve reseña suya</label>
+            <textarea class="form-control" id="resena" name="resena" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Registrarse</button>
+    </form>
+</div>
+
+<br>
+{{! Formulario para el Registro de un nuevo Paciente - Después veo si lo incluyo dentro de un Modal en el Home}}
+
+<div class="container">
+    <h2>Registrarse</h2>
+    <h4>Complete el formulario para registrarse en la app y luego poder gestionar un turno</h4>
+    <form action="/nuevoPaciente" method="post">
+        <div class="mb-3">
+            <label for="usuarioPaciente" class="form-label">DNI</label>
+            <input type="text" class="form-control" id="usuarioPaciente" name="usuarioPaciente" minlength="7" maxlength="8" aria-describedby="dniHelp" required>
+            <div id="dniHelp" class="form-text">Escriba su DNI solo con números, sin puntos ni comas.</div>
+        </div>
+        <div class="mb-3">
+            <label for="passPaciente" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="passPaciente" name="passPaciente" minlength="8" maxlength="14" aria-describedby="passHelp" required>
+            <div id="passHelp" class="form-text">La contraseña deberá ser de 8-14 caracteres, contener letras y números y no debe contener espacios o caracteres especiales.
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="nombrePaciente" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombrePaciente" name="nombrePaciente" required>
+        </div>
+        <div class="mb-3">
+            <label for="apellidoPaciente" class="form-label">Apellido</label>
+            <input type="text" class="form-control" id="apellidoPaciente" name="apellidoPaciente" required>
+        </div>
+        <div class="mb-3">
+            <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+            <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required>
+        </div>
+        <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono Móvil</label>
+            <input type="tel" class="form-control" id="telefono" name="telefono" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">e-mail</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="obraSocial" class="form-label">Elija su Obra Social, Mutual o Prepaga</label>
+            <input type="text" list="obrasSociales" class="form-control" id="obraSocial" name="obraSocial" required>
+            <datalist id="obrasSociales">
+                {{#each datosObrasSociales}}
+                <option value="{{idOS}}" label="{{nombreObraSocial}}">
+                {{!TODO: Ver cómo hacer para que en la lista se vea solo el nombre pero el backend reciba el id}}
+                {{/each}}
+            </datalist>
+        </div>
+        <button type="submit" class="btn btn-primary">Registrarse</button>
+    </form>
+</div>
