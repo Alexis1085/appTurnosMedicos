@@ -12,7 +12,7 @@
         <div class="mb-3">
             <label for="passMedico" class="form-label">Contraseña</label>
             <input type="password" class="form-control" id="passMedico" name="passMedico" minlength="8" maxlength="14" aria-describedby="passHelp" required>
-            <div id="passHelp" class="form-text">La contraseña deberá ser de 8-14 caracteres, contener letras y números y no debe contener espacios o caracteres especiales.
+            <div id="passHelp" class="form-text">La contraseña deberá ser de 8-14 caracteres{{!, contener letras y números y no debe contener espacios o caracteres especiales}}.
             </div>
         </div>
         <div class="mb-3">
@@ -36,6 +36,28 @@
 </div>
 
 <br>
+{{! Login para los Médicos }}
+<div class="container">
+    <div class="w-25">
+        <h3 class="fs-4">Si usted es un Médico asociado ingrese aquí</h3>
+        <form action="/loginmedico" method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="loginUsuarioMedico" id="loginUsuarioMedico" minlength="7" maxlength="8" placeholder="DNI" required>
+                <label for="loginUsuarioMedico">DNI</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="loginPassMedico" id="loginPassMedico" minlength="8" maxlength="14" placeholder="Contraseña" required>
+                <label for="loginPassMedico">Contraseña</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mb-4">Login</button>
+        </form>
+        <h6>Si aún no estás asociado a la plataforma regístrate:</h6>
+        <button type="button" class="btn btn-outline-primary w-100">Registrarse</button>
+    </div>
+</div>
+
+
+<br>
 {{! Formulario para el Registro de un nuevo Paciente - Después veo si lo incluyo dentro de un Modal en el Home}}
 
 <div class="container">
@@ -50,7 +72,7 @@
         <div class="mb-3">
             <label for="passPaciente" class="form-label">Contraseña</label>
             <input type="password" class="form-control" id="passPaciente" name="passPaciente" minlength="8" maxlength="14" aria-describedby="passHelp" required>
-            <div id="passHelp" class="form-text">La contraseña deberá ser de 8-14 caracteres, contener letras y números y no debe contener espacios o caracteres especiales.
+            <div id="passHelp" class="form-text">La contraseña deberá ser de 8-14 caracteres{{!, contener letras y números y no debe contener espacios o caracteres especiales}}.
             </div>
         </div>
         <div class="mb-3">
@@ -75,14 +97,34 @@
         </div>
         <div class="mb-3">
             <label for="obraSocial" class="form-label">Elija su Obra Social, Mutual o Prepaga</label>
-            <input type="text" list="obrasSociales" class="form-control" id="obraSocial" name="obraSocial" required>
-            <datalist id="obrasSociales">
+            <select class="form-select" name="obraSocial" id="obraSocial" required>
+                <option value="">--</option>
                 {{#each datosObrasSociales}}
                 <option value="{{idOS}}" label="{{nombreObraSocial}}">
-                {{!TODO: Ver cómo hacer para que en la lista se vea solo el nombre pero el backend reciba el id}}
                 {{/each}}
-            </datalist>
+            </select>
         </div>
         <button type="submit" class="btn btn-primary">Registrarse</button>
     </form>
+</div>
+
+<br>
+{{! Login para los Pacientes }}
+<div class="container">
+    <div class="w-25">
+        <h3 class="fs-4">Para sacar un turno ingrese aquí</h3>
+        <form action="/loginpaciente" method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="loginUsuarioPaciente" id="loginUsuarioPaciente" minlength="7" maxlength="8" placeholder="DNI" required>
+                <label for="loginUsuarioPaciente">DNI</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="loginPassPaciente" id="loginPassPaciente" minlength="8" maxlength="14" placeholder="Contraseña" required>
+                <label for="loginPassPaciente">Contraseña</label>
+            </div>
+            <button type="submit" class="btn btn-success w-100 mb-4">Login</button>
+        </form>
+        <h6>Si es tu primera vez aquí regístrate:</h6>
+        <button type="button" class="btn btn-outline-success w-100">Registrarse</button>
+    </div>
 </div>

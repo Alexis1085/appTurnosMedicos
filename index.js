@@ -7,8 +7,10 @@ const mysql = require('mysql2');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const hbs = require('hbs');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 /* Formato de las variables de entorno:
+SESSION_SECRET=
 SERVER_PORT=
 DB_HOST=
 DB_PORT=
@@ -18,6 +20,12 @@ DB_NAME=
 EMAIL=
 EMAIL_PASS=
 */
+const session = require('express-session');
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
 
 const port = process.env.SERVER_PORT || 9000;
 
@@ -46,19 +54,21 @@ conexion.connect(err => {
 
 //*Creación de Variables globales para el funcionamiento de la app
 let listaObrasSociales;
-conexion.query("SELECT * FROM obrasSociales", (err,result) => {
+conexion.query("SELECT * FROM obras_sociales;", (err,result) => {
     if (err) throw err;
     console.log(result);
     listaObrasSociales = result;
 });
- 
+
 //* Rutas de la Aplicación:
 //? POST para el registro de nuevos médicos
-app.post('/nuevoMedico', (req,res) => {
+app.post('/nuevoMedico', async (req,res) => {
     console.log(req.body);
+    let passMedico = req.body.passMedico;
+    let hashPassMedico = await bcrypt.hash(passMedico, 8);
     let datosNuevoMedico = {
         usuarioMedico: req.body.usuarioMedico,
-        passMedico: req.body.passMedico,
+        passMedico: hashPassMedico,
         nombreMedico: req.body.nombreMedico,
         apellidoMedico: req.body.apellidoMedico,
         especialidad: req.body.especialidad,
@@ -71,11 +81,14 @@ app.post('/nuevoMedico', (req,res) => {
     })
 });
 
-app.post('/nuevoPaciente', (req,res) => {
+//? POST para el registro de nuevos pacientes
+app.post('/nuevoPaciente', async (req,res) => {
     console.log(req.body);
+    let passPaciente = req.body.passPaciente;
+    let hashPassPaciente = await bcrypt.hash(passPaciente, 8);
     let datosNuevoPaciente = {
         usuarioPaciente: req.body.usuarioPaciente,
-        passPaciente: req.body.passPaciente,
+        passPaciente: hashPassPaciente,
         nombrePaciente: req.body.nombrePaciente,
         apellidoPaciente: req.body.apellidoPaciente,
         fechaNacimiento: req.body.fechaNacimiento,
@@ -90,14 +103,100 @@ app.post('/nuevoPaciente', (req,res) => {
     })
 })
 
+//? POST para el "log in" de los médicos
+app.post('/loginmedico', async (req,res) => {
+    let usuario = req.body.loginUsuarioMedico;
+    let password = req.body.loginPassMedico;
+    let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
+    conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${usuario}';`, async (err,result) => {
+        if (err) {
+            console.log(err);
+            res.send("Error de conexión");
+        } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passMedico))) {
+            res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
+        } else {
+            console.log("Login correcto");
+            req.session.loggedin = true;
+            req.session.rol = 'medico';
+            req.session.datosMedico = result[0]
+            res.render('panelmedico', {
+                //login: true,
+                datosMedico: req.session.datosMedico
+                })
+        }
+    })
+});
+
+//? POST para el "log in" de los pacientes
+app.post('/loginpaciente', async (req,res) => {
+    let usuario = req.body.loginUsuarioPaciente;
+    let password = req.body.loginPassPaciente;
+    let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
+    conexion.query(`SELECT * FROM pacientes WHERE usuarioPaciente = '${usuario}';`, async (err,result) => {
+        if (err) {
+            console.log(err);
+            res.send("Error de conexión");
+        } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passPaciente))) {
+            res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
+        } else {
+            console.log("Login correcto");
+            req.session.loggedin = true;
+            req.session.rol = 'paciente';
+            req.session.datosPaciente = result[0];
+            res.render('panelpaciente', {
+                //login: true,
+                datosPaciente: req.session.datosPaciente
+                })
+        }
+    })
+});
+
+
 app.get('/', (req,res) => {
     res.render('home', {
         datosObrasSociales: listaObrasSociales
     });
 });
 
+app.get('/panelmedico', (req,res) => {
+    if (req.session.loggedin && req.session.rol == 'medico'){
+        res.render('panelmedico', {
+            //login: true,
+            datosMedico: req.session.datosMedico
+        })
+    } else {
+        res.render('home', {
+            //login: false,
+            datosObrasSociales: listaObrasSociales
+        })
+    }
+});
+
+app.get('/panelpaciente', (req,res) => {
+    if (req.session.loggedin && req.session.rol == 'paciente'){
+        res.render('panelpaciente', {
+            //login: true,
+            datosPaciente: req.session.datosPaciente
+        })
+    } else {
+        res.render('home', {
+            //login: false,
+            datosObrasSociales: listaObrasSociales
+        })
+    }
+});
+
+app.get('/logout', (req,res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    })
+});
+
+
 app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);
 });
 
-//TODO Login trucho.
+//TODO Empezar a desarrollar el panel de los médicos ---> Perfil // Obras Sociales // Módulos // Agenda
+
+//TODO Desarrollar el panel de los pacientes ---> Perfil // Buscador // Mis turnos
