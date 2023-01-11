@@ -77,7 +77,14 @@ app.post('/nuevoMedico', async (req,res) => {
     conexion.query("INSERT INTO medicos SET ?", datosNuevoMedico, err => {
         if (err) throw err;
         console.log(`1 nuevo Médico agregado a la Base de Datos`);
-        res.send(`Hola Doctor@ ${datosNuevoMedico.apellidoMedico}! Usted fue agregado a la base de datos de la app`);
+        req.session.loggedin = true;
+        req.session.rol = 'medico';
+        conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${datosNuevoMedico.usuarioMedico}';`, (err,result) => {
+            if (err) throw err;
+            req.session.datosMedico = result[0];
+            res.redirect('/panelmedico')
+        })
+        /* res.send(`Hola Doctor@ ${datosNuevoMedico.apellidoMedico}! Usted fue agregado a la base de datos de la app`); */
     })
 });
 
@@ -99,9 +106,17 @@ app.post('/nuevoPaciente', async (req,res) => {
     conexion.query("INSERT INTO pacientes SET ?", datosNuevoPaciente, err => {
         if (err) throw err;
         console.log(`1 nuevo usuario agregado a la base de datos`);
-        res.send(`Hola ${datosNuevoPaciente.nombrePaciente}, fuiste agregad@ a la base de datos`);
+        req.session.loggedin = true;
+        req.session.rol = 'paciente';
+        conexion.query(`SELECT * FROM pacientes WHERE usuarioPaciente = '${datosNuevoPaciente.usuarioPaciente}';`, (err,result) => {
+            if (err) throw err;
+            req.session.datosPaciente = result[0];
+            res.redirect('/panelpaciente');
+        })
+        /* res.send(`Hola ${datosNuevoPaciente.nombrePaciente}, fuiste agregad@ a la base de datos`); */
     })
 })
+
 
 //? POST para el "log in" de los médicos
 app.post('/loginmedico', async (req,res) => {
@@ -118,11 +133,12 @@ app.post('/loginmedico', async (req,res) => {
             console.log("Login correcto");
             req.session.loggedin = true;
             req.session.rol = 'medico';
-            req.session.datosMedico = result[0]
-            res.render('panelmedico', {
+            req.session.datosMedico = result[0];
+            res.redirect('/panelmedico');
+            /* res.render('panelmedico', {
                 //login: true,
                 datosMedico: req.session.datosMedico
-                })
+                }) */
         }
     })
 });
@@ -143,10 +159,11 @@ app.post('/loginpaciente', async (req,res) => {
             req.session.loggedin = true;
             req.session.rol = 'paciente';
             req.session.datosPaciente = result[0];
-            res.render('panelpaciente', {
+            res.redirect('/panelpaciente')
+            /* res.render('panelpaciente', {
                 //login: true,
                 datosPaciente: req.session.datosPaciente
-                })
+                }) */
         }
     })
 });
@@ -165,10 +182,11 @@ app.get('/panelmedico', (req,res) => {
             datosMedico: req.session.datosMedico
         })
     } else {
-        res.render('home', {
+        res.redirect('/');
+        /* res.render('home', {
             //login: false,
             datosObrasSociales: listaObrasSociales
-        })
+        }) */
     }
 });
 
@@ -179,10 +197,11 @@ app.get('/panelpaciente', (req,res) => {
             datosPaciente: req.session.datosPaciente
         })
     } else {
-        res.render('home', {
+        res.redirect('/');
+        /* res.render('home', {
             //login: false,
             datosObrasSociales: listaObrasSociales
-        })
+        }) */
     }
 });
 
