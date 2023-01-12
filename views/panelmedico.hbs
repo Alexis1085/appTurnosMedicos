@@ -6,3 +6,61 @@
 {{ datosMedico }}
 <br>
 <a href="/logout" class="btn btn-dark">Cerrar sesión</a>
+
+<br>
+
+{{! Panel}}
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="perfil-tab" data-bs-toggle="tab" data-bs-target="#perfil-tab-pane" type="button" role="tab" aria-controls="perfil-tab-pane" aria-selected="true">Perfil</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="obras_sociales-tab" data-bs-toggle="tab" data-bs-target="#obras_sociales-tab-pane" type="button" role="tab" aria-controls="obras_sociales-tab-pane" aria-selected="false">Obras Sociales</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="modulos-tab" data-bs-toggle="tab" data-bs-target="#modulos-tab-pane" type="button" role="tab" aria-controls="modulos-tab-pane" aria-selected="false">Módulos</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda-tab-pane" type="button" role="tab" aria-controls="agenda-tab-pane" aria-selected="false">Agenda</button>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="perfil-tab-pane" role="tabpanel" aria-labelledby="perfil-tab" tabindex="0">
+        <div class="container">
+            <h4>Mi Perfil</h4>
+            <table class="table table-borderless w-50">
+                <tbody>
+                    <tr>
+                        <th scope="nombreMedico">Nombre</th>
+                        <td>{{datosMedico.nombreMedico}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="apellidoMedico">Apellido</th>
+                        <td>{{datosMedico.apellidoMedico}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="especialidad">Especialidad</th>
+                        <td>{{datosMedico.especialidad}}</td>
+                    </tr>
+                    <tr>
+                        <th scope="resena">Reseña</th>
+                        <td rowspan="4">{{datosMedico.resena}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div>
+                {{! Hacer Acordeon o Collapse o una mezcla de los 2}}
+                <button type="button" class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#modalDelete" data-iddelete="{{idProducto}}" data-nombredelete="{{nombreProducto}}" data-preciodelete="{{precioProducto}}" data-descripciondelete="{{descripcionProducto}}">Eliminar</button>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="obras_sociales-tab-pane" role="tabpanel" aria-labelledby="obras_sociales-tab" tabindex="0">
+        <h4>Obras Sociales</h4>
+    </div>
+    <div class="tab-pane fade" id="modulos-tab-pane" role="tabpanel" aria-labelledby="modulos-tab" tabindex="0">
+        <h4>Mis Módulos</h4>
+    </div>
+    <div class="tab-pane fade" id="agenda-tab-pane" role="tabpanel" aria-labelledby="agenda-tab" tabindex="0">
+        <h4>Mis Agendas</h4>
+    </div>
+</div>
