@@ -3,3 +3,103 @@
 
 <br>
 <a href="/logout" class="btn btn-dark">Cerrar sesión</a>
+
+{{! Panel}}
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="perfil-tab" data-bs-toggle="tab" data-bs-target="#perfil-tab-pane" type="button" role="tab" aria-controls="perfil-tab-pane" aria-selected="true">Perfil</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="buscador-tab" data-bs-toggle="tab" data-bs-target="#buscador-tab-pane" type="button" role="tab" aria-controls="buscador-tab-pane" aria-selected="false">Buscador de prestadores</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="turnos-tab" data-bs-toggle="tab" data-bs-target="#turnos-tab-pane" type="button" role="tab" aria-controls="turnos-tab-pane" aria-selected="false">Mis Turnos</button>
+    </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="perfil-tab-pane" role="tabpanel" aria-labelledby="perfil-tab" tabindex="0">
+        <div class="container">
+            <h4>Mi Perfil</h4>
+            <div class="accordion" id="accordionPerfil">
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionPerfil">
+                    <div class="accordion-body">
+                        <table class="table table-borderless w-50">
+                            <tbody>
+                                <tr>
+                                    <th scope="nombrePaciente">Nombre</th>
+                                    <td>{{datosPaciente.nombrePaciente}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="apellidoPaciente">Apellido</th>
+                                    <td>{{datosPaciente.apellidoPaciente}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="fechaNacimiento">Fecha de Nacimiento</th>
+                                    <td>{{datosPaciente.fechaNacimiento}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="telefono">Teléfono</th>
+                                    <td>{{datosPaciente.telefono}}
+                                </tr>
+                                <tr>
+                                    <th scope="email">e-mail</th>
+                                    <td>{{datosPaciente.email}}
+                                </tr>
+                                <tr>
+                                    <th scope="obraSocial">Obra Social</th>
+                                    <td>{{datosPaciente.nombreObraSocial}}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-warning collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Modificar Datos Personales</button>
+                </div>
+                <div id="collapseTwo" class="accordion-collapse collapse w-50" data-bs-parent="#accordionPerfil">
+                    <div class="accordion-body">
+                        <form action="/actualizarpaciente" method="post">
+                            <div class="mb-3">
+                                <label for="nombrePaciente" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombrePaciente" name="nombrePaciente" value="{{datosPaciente.nombrePaciente}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apellidoPaciente" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellidoPaciente" name="apellidoPaciente" value="{{datosPaciente.apellidoPaciente}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                                <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" value="{{datosPaciente.fechaNacimiento}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">Teléfono Móvil</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" value="{{datosPaciente.telefono}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">e-mail</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{datosPaciente.email}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="obraSocial" class="form-label">Obra Social, Mutual o Prepaga</label>
+                                <select class="form-select" name="obraSocial" id="obraSocial" required>
+                                    <option value="{{datosPaciente.nombreObraSocial}}" label="{{datosPaciente.nombreObraSocial}}"></option>
+                                    {{#each datosObrasSociales}}
+                                    <option value="{{idOS}}" label="{{nombreObraSocial}}">
+                                    {{/each}}
+                                </select>
+                            </div>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Descartar cambios</button>
+                            <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="buscador-tab-pane" role="tabpanel" aria-labelledby="buscador-tab" tabindex="0">
+        <h4>Buscar un Prestador</h4>
+    </div>
+    <div class="tab-pane fade" id="turnos-tab-pane" role="tabpanel" aria-labelledby="turnos-tab" tabindex="0">
+        <h4>Mis Turnos</h4>
+    </div>
+</div>

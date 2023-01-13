@@ -53,12 +53,11 @@
                     </div>
                 </div>
                 <div>
-                    {{! Hacer Acordeon o Collapse o una mezcla de los 2}}
                     <button class="btn btn-warning collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Modificar Datos Personales</button>
                 </div>
                 <div id="collapseTwo" class="accordion-collapse collapse w-50" data-bs-parent="#accordionPerfil">
                     <div class="accordion-body">
-                        <form action="/actualizarMedico" method="post">
+                        <form action="/actualizarmedico" method="post">
                             <div class="mb-3">
                                 <label for="nombreMedico" class="form-label">Nombre</label>
                                 <input type="text" class="form-control" id="nombreMedico" name="nombreMedico" value="{{datosMedico.nombreMedico}}" required>
