@@ -3,7 +3,6 @@
 
 <h3>Soy el Panel personal del Doctor@ {{datosMedico.apellidoMedico}}</h3>
 
-{{ datosMedico }}
 <br>
 <a href="/logout" class="btn btn-dark">Cerrar sesión</a>
 
@@ -28,29 +27,59 @@
     <div class="tab-pane fade show active" id="perfil-tab-pane" role="tabpanel" aria-labelledby="perfil-tab" tabindex="0">
         <div class="container">
             <h4>Mi Perfil</h4>
-            <table class="table table-borderless w-50">
-                <tbody>
-                    <tr>
-                        <th scope="nombreMedico">Nombre</th>
-                        <td>{{datosMedico.nombreMedico}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="apellidoMedico">Apellido</th>
-                        <td>{{datosMedico.apellidoMedico}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="especialidad">Especialidad</th>
-                        <td>{{datosMedico.especialidad}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="resena">Reseña</th>
-                        <td rowspan="4">{{datosMedico.resena}}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div>
-                {{! Hacer Acordeon o Collapse o una mezcla de los 2}}
-                <button type="button" class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#modalDelete" data-iddelete="{{idProducto}}" data-nombredelete="{{nombreProducto}}" data-preciodelete="{{precioProducto}}" data-descripciondelete="{{descripcionProducto}}">Eliminar</button>
+            <div class="accordion" id="accordionPerfil">
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionPerfil">
+                    <div class="accordion-body">
+                        <table class="table table-borderless w-50">
+                            <tbody>
+                                <tr>
+                                    <th scope="nombreMedico">Nombre</th>
+                                    <td>{{datosMedico.nombreMedico}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="apellidoMedico">Apellido</th>
+                                    <td>{{datosMedico.apellidoMedico}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="especialidad">Especialidad</th>
+                                    <td>{{datosMedico.especialidad}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="resena">Reseña</th>
+                                    <td rowspan="4">{{datosMedico.resena}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    {{! Hacer Acordeon o Collapse o una mezcla de los 2}}
+                    <button class="btn btn-warning collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Modificar Datos Personales</button>
+                </div>
+                <div id="collapseTwo" class="accordion-collapse collapse w-50" data-bs-parent="#accordionPerfil">
+                    <div class="accordion-body">
+                        <form action="/actualizarMedico" method="post">
+                            <div class="mb-3">
+                                <label for="nombreMedico" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombreMedico" name="nombreMedico" value="{{datosMedico.nombreMedico}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="apellidoMedico" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellidoMedico" name="apellidoMedico" value="{{datosMedico.apellidoMedico}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="especialidad" class="form-label">Especialidad</label>
+                                <input type="text" class="form-control" id="especialidad" name="especialidad" value="{{datosMedico.especialidad}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="resena" class="form-label">Escriba una breve reseña suya</label>
+                                <textarea class="form-control" id="resena" name="resena" rows="3" required>{{datosMedico.resena}}</textarea>
+                            </div>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Descartar cambios</button>
+                            <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -61,113 +61,6 @@ conexion.query("SELECT * FROM obras_sociales;", (err,result) => {
 });
 
 //* Rutas de la Aplicación:
-//? POST para el registro de nuevos médicos
-app.post('/nuevoMedico', async (req,res) => {
-    console.log(req.body);
-    let passMedico = req.body.passMedico;
-    let hashPassMedico = await bcrypt.hash(passMedico, 8);
-    let datosNuevoMedico = {
-        usuarioMedico: req.body.usuarioMedico,
-        passMedico: hashPassMedico,
-        nombreMedico: req.body.nombreMedico,
-        apellidoMedico: req.body.apellidoMedico,
-        especialidad: req.body.especialidad,
-        resena: req.body.resena
-    };
-    conexion.query("INSERT INTO medicos SET ?", datosNuevoMedico, err => {
-        if (err) throw err;
-        console.log(`1 nuevo Médico agregado a la Base de Datos`);
-        req.session.loggedin = true;
-        req.session.rol = 'medico';
-        conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${datosNuevoMedico.usuarioMedico}';`, (err,result) => {
-            if (err) throw err;
-            req.session.datosMedico = result[0];
-            res.redirect('/panelmedico')
-        })
-        /* res.send(`Hola Doctor@ ${datosNuevoMedico.apellidoMedico}! Usted fue agregado a la base de datos de la app`); */
-    })
-});
-
-//? POST para el registro de nuevos pacientes
-app.post('/nuevoPaciente', async (req,res) => {
-    console.log(req.body);
-    let passPaciente = req.body.passPaciente;
-    let hashPassPaciente = await bcrypt.hash(passPaciente, 8);
-    let datosNuevoPaciente = {
-        usuarioPaciente: req.body.usuarioPaciente,
-        passPaciente: hashPassPaciente,
-        nombrePaciente: req.body.nombrePaciente,
-        apellidoPaciente: req.body.apellidoPaciente,
-        fechaNacimiento: req.body.fechaNacimiento,
-        telefono: req.body.telefono,
-        email: req.body.email,
-        idOS: req.body.obraSocial
-    };
-    conexion.query("INSERT INTO pacientes SET ?", datosNuevoPaciente, err => {
-        if (err) throw err;
-        console.log(`1 nuevo usuario agregado a la base de datos`);
-        req.session.loggedin = true;
-        req.session.rol = 'paciente';
-        conexion.query(`SELECT * FROM pacientes WHERE usuarioPaciente = '${datosNuevoPaciente.usuarioPaciente}';`, (err,result) => {
-            if (err) throw err;
-            req.session.datosPaciente = result[0];
-            res.redirect('/panelpaciente');
-        })
-        /* res.send(`Hola ${datosNuevoPaciente.nombrePaciente}, fuiste agregad@ a la base de datos`); */
-    })
-})
-
-
-//? POST para el "log in" de los médicos
-app.post('/loginmedico', async (req,res) => {
-    let usuario = req.body.loginUsuarioMedico;
-    let password = req.body.loginPassMedico;
-    let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
-    conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${usuario}';`, async (err,result) => {
-        if (err) {
-            console.log(err);
-            res.send("Error de conexión");
-        } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passMedico))) {
-            res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
-        } else {
-            console.log("Login correcto");
-            req.session.loggedin = true;
-            req.session.rol = 'medico';
-            req.session.datosMedico = result[0];
-            res.redirect('/panelmedico');
-            /* res.render('panelmedico', {
-                //login: true,
-                datosMedico: req.session.datosMedico
-                }) */
-        }
-    })
-});
-
-//? POST para el "log in" de los pacientes
-app.post('/loginpaciente', async (req,res) => {
-    let usuario = req.body.loginUsuarioPaciente;
-    let password = req.body.loginPassPaciente;
-    let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
-    conexion.query(`SELECT * FROM pacientes WHERE usuarioPaciente = '${usuario}';`, async (err,result) => {
-        if (err) {
-            console.log(err);
-            res.send("Error de conexión");
-        } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passPaciente))) {
-            res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
-        } else {
-            console.log("Login correcto");
-            req.session.loggedin = true;
-            req.session.rol = 'paciente';
-            req.session.datosPaciente = result[0];
-            res.redirect('/panelpaciente')
-            /* res.render('panelpaciente', {
-                //login: true,
-                datosPaciente: req.session.datosPaciente
-                }) */
-        }
-    })
-});
-
 
 app.get('/', (req,res) => {
     res.render('home', {
@@ -211,6 +104,131 @@ app.get('/logout', (req,res) => {
     })
 });
 
+//? POST para el registro de nuevos médicos
+app.post('/nuevoMedico', async (req,res) => {
+    console.log(req.body);
+    let passMedico = req.body.passMedico;
+    let hashPassMedico = await bcrypt.hash(passMedico, 8);
+    let datosNuevoMedico = {
+        usuarioMedico: req.body.usuarioMedico,
+        passMedico: hashPassMedico,
+        nombreMedico: req.body.nombreMedico,
+        apellidoMedico: req.body.apellidoMedico,
+        especialidad: req.body.especialidad,
+        resena: req.body.resena
+    };    
+    conexion.query("INSERT INTO medicos SET ?", datosNuevoMedico, err => {
+        if (err) throw err;
+        console.log(`1 nuevo Médico agregado a la Base de Datos`);
+        req.session.loggedin = true;
+        req.session.rol = 'medico';
+        conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${datosNuevoMedico.usuarioMedico}';`, (err,result) => {
+            if (err) throw err;
+            req.session.datosMedico = result[0];
+            res.redirect('/panelmedico')
+        })    
+        /* res.send(`Hola Doctor@ ${datosNuevoMedico.apellidoMedico}! Usted fue agregado a la base de datos de la app`); */
+    })    
+});    
+
+//? POST para el registro de nuevos pacientes
+app.post('/nuevoPaciente', async (req,res) => {
+    console.log(req.body);
+    let passPaciente = req.body.passPaciente;
+    let hashPassPaciente = await bcrypt.hash(passPaciente, 8);
+    let datosNuevoPaciente = {
+        usuarioPaciente: req.body.usuarioPaciente,
+        passPaciente: hashPassPaciente,
+        nombrePaciente: req.body.nombrePaciente,
+        apellidoPaciente: req.body.apellidoPaciente,
+        fechaNacimiento: req.body.fechaNacimiento,
+        telefono: req.body.telefono,
+        email: req.body.email,
+        idOS: req.body.obraSocial
+    };    
+    conexion.query("INSERT INTO pacientes SET ?", datosNuevoPaciente, err => {
+        if (err) throw err;
+        console.log(`1 nuevo usuario agregado a la base de datos`);
+        req.session.loggedin = true;
+        req.session.rol = 'paciente';
+        conexion.query(`SELECT * FROM pacientes WHERE usuarioPaciente = '${datosNuevoPaciente.usuarioPaciente}';`, (err,result) => {
+            if (err) throw err;
+            req.session.datosPaciente = result[0];
+            res.redirect('/panelpaciente');
+        })    
+        /* res.send(`Hola ${datosNuevoPaciente.nombrePaciente}, fuiste agregad@ a la base de datos`); */
+    })    
+})    
+
+
+//? POST para el "log in" de los médicos
+app.post('/loginmedico', async (req,res) => {
+    let usuario = req.body.loginUsuarioMedico;
+    let password = req.body.loginPassMedico;
+    let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
+    conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${usuario}';`, async (err,result) => {
+        if (err) {
+            console.log(err);
+            res.send("Error de conexión");
+        } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passMedico))) {
+            res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
+        } else {
+            console.log("Login correcto");
+            req.session.loggedin = true;
+            req.session.rol = 'medico';
+            req.session.datosMedico = result[0];
+            res.redirect('/panelmedico');
+            /* res.render('panelmedico', {
+                //login: true,
+                datosMedico: req.session.datosMedico
+                }) */
+        }        
+    })    
+});    
+
+//? POST para el "log in" de los pacientes
+app.post('/loginpaciente', async (req,res) => {
+    let usuario = req.body.loginUsuarioPaciente;
+    let password = req.body.loginPassPaciente;
+    let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
+    conexion.query(`SELECT * FROM pacientes WHERE usuarioPaciente = '${usuario}';`, async (err,result) => {
+        if (err) {
+            console.log(err);
+            res.send("Error de conexión");
+        } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passPaciente))) {
+            res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
+        } else {
+            console.log("Login correcto");
+            req.session.loggedin = true;
+            req.session.rol = 'paciente';
+            req.session.datosPaciente = result[0];
+            res.redirect('/panelpaciente')
+            /* res.render('panelpaciente', {
+                //login: true,
+                datosPaciente: req.session.datosPaciente
+                }) */
+        }        
+    })    
+});    
+
+//? POST para la actualización del Perfil de los médicos:
+app.post('/actualizarMedico', (req,res) => {
+    let updateMedico = {
+        nombreMedico: req.body.nombreMedico,
+        apellidoMedico: req.body.apellidoMedico,
+        especialidad: req.body.especialidad,
+        resena: req.body.resena
+    };
+    conexion.query(`UPDATE medicos SET ? WHERE usuarioMedico = "${req.session.datosMedico.usuarioMedico}";`, updateMedico, err => {
+        if (err) throw err;
+        console.log("Medico actualizado");
+        conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = "${req.session.datosMedico.usuarioMedico}";`, (err,result) => {
+            if (err) throw err;
+            req.session.datosMedico = result[0];
+            res.redirect('/panelmedico')
+        })
+    })
+});
 
 app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);
