@@ -71,10 +71,24 @@ app.get('/', (req,res) => {
 
 app.get('/panelmedico', (req,res) => {
     if (req.session.loggedin && req.session.rol == 'medico'){
-        res.render('panelmedico', {
-            //login: true,
-            datosMedico: req.session.datosMedico,
-            datosObrasSociales: listaObrasSociales
+        conexion.query(`SELECT os.idOS, os.nombreObraSocial, osmed.usuarioMedico FROM obras_sociales AS os LEFT JOIN (
+            SELECT * FROM os_medicos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
+        ) AS osmed ON os.idOS = osmed.idOS;`, (err,result) => {
+            if (err) throw err;
+            let osMedico = result;
+            osMedico.map(function(aux) {
+                if (aux.usuarioMedico == null){
+                    aux.usuarioMedico = false;
+                } else {
+                    aux.usuarioMedico = true;
+                }
+                return aux;
+            });
+            res.render('panelmedico', {
+                //login: true,
+                datosMedico: req.session.datosMedico,
+                datosObrasSociales: osMedico
+            })
         })
     } else {
         res.redirect('/');
@@ -258,6 +272,43 @@ app.post('/actualizarpaciente', (req,res) => {
     })
 });
 
+
+//? POST para el CRUD de la tabla "os_medicos" que define qué Obra Social atiende cada médico:
+app.post('/os_medicos', (req,res) => {
+    console.log(req.body);
+    let osNuevas = req.body.idOS;
+    console.log(osNuevas);
+    conexion.query(`SELECT idOS FROM os_medicos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}' ORDER BY idOS ASC;`, (err,result) => {
+        if (err) throw err;
+        console.log(result);
+        let osExistentes = result;
+        //Algoritmo para agregar las Nuevas Obras Sociales que eligió el médico
+        for (var i=0; i< osNuevas.length; i++) {
+            var existe = false;
+            for (var j=0; j< osExistentes.length; j++) {
+                if (osNuevas[i] == osExistentes[j].idOS) {
+                    existe = true;
+                    break;
+                }
+            } if (!existe) {
+                conexion.query(`INSERT INTO os_medicos (usuarioMedico, idOS) VALUES(${req.session.datosMedico.usuarioMedico},${osNuevas[i]});`, err => {if (err) throw err;});
+            }
+        }
+        //Algoritmo para Eliminar las Obras Sociales que ya no elige
+        for (var j=0; j< osExistentes.length; j++) {
+            var continua = false;
+            for (var i=0; i< osNuevas.length; i++) {
+                if (osExistentes[j].idOS == osNuevas[i]) {
+                    continua = true;
+                    break;
+                }
+            } if (!continua) {
+                conexion.query(`DELETE FROM os_medicos WHERE usuarioMedico = ${req.session.datosMedico.usuarioMedico} AND idOS = ${osExistentes[j].idOS};`, err => {if (err) throw err;});
+            }
+        }
+    });
+    res.redirect('/panelmedico');
+})
 
 app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);

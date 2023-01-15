@@ -83,7 +83,25 @@
         </div>
     </div>
     <div class="tab-pane fade" id="obras_sociales-tab-pane" role="tabpanel" aria-labelledby="obras_sociales-tab" tabindex="0">
-        <h4>Obras Sociales</h4>
+        <div class="container">
+            <h4>Obras Sociales</h4>
+            <form action="/os_medicos" method="post">
+                <ul class="list-group mb-3 overflow-auto w-50" style="height: 40vh;">
+                    {{#each datosObrasSociales}}
+                    <li class="list-group-item">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input me-1" type="checkbox" role="switch" name="idOS" value="{{idOS}}" id="idOS{{idOS}}" {{#if usuarioMedico}}checked{{/if}}>
+                            <label class="form-check-label stretched-link" for="idOS{{idOS}}">{{nombreObraSocial}}</label>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+                <input type="hidden" name="idOS" value="1">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end w-50">
+                    <button class="btn btn-primary" type="submit">Aplicar</button>
+                </div>
+            </form>
+        </div>
     </div>
     <div class="tab-pane fade" id="modulos-tab-pane" role="tabpanel" aria-labelledby="modulos-tab" tabindex="0">
         <h4>Mis Módulos</h4>
