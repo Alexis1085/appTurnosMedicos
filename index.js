@@ -71,23 +71,30 @@ app.get('/', (req,res) => {
 
 app.get('/panelmedico', (req,res) => {
     if (req.session.loggedin && req.session.rol == 'medico'){
-        conexion.query(`SELECT os.idOS, os.nombreObraSocial, osmed.usuarioMedico FROM obras_sociales AS os LEFT JOIN (
-            SELECT * FROM os_medicos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
-        ) AS osmed ON os.idOS = osmed.idOS;`, (err,result) => {
+        //*SELECT para traer los datos de la tabla modulos
+        conexion.query(`SELECT * FROM modulos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}';`, (err,result_mod) => {
             if (err) throw err;
-            let osMedico = result;
-            osMedico.map(function(aux) {
-                if (aux.usuarioMedico == null){
-                    aux.usuarioMedico = false;
-                } else {
-                    aux.usuarioMedico = true;
-                }
-                return aux;
-            });
-            res.render('panelmedico', {
-                //login: true,
-                datosMedico: req.session.datosMedico,
-                datosObrasSociales: osMedico
+            //console.log(result_mod);
+            //* SELECT para traer los datos necesarios para la Solapa Obras Sociales
+            conexion.query(`SELECT os.idOS, os.nombreObraSocial, osmed.usuarioMedico FROM obras_sociales AS os LEFT JOIN (
+                SELECT * FROM os_medicos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
+            ) AS osmed ON os.idOS = osmed.idOS;`, (err,result_os) => {
+                if (err) throw err;
+                let osMedico = result_os;
+                osMedico.map(function(aux) {
+                    if (aux.usuarioMedico == null){
+                        aux.usuarioMedico = false;
+                    } else {
+                        aux.usuarioMedico = true;
+                    }
+                    return aux;
+                });
+                res.render('panelmedico', {
+                    //login: true,
+                    datosMedico: req.session.datosMedico,
+                    datosObrasSociales: osMedico,
+                    datosModulos: result_mod
+                })
             })
         })
     } else {
@@ -310,10 +317,55 @@ app.post('/os_medicos', (req,res) => {
     res.redirect('/panelmedico');
 })
 
+//? POST para Insertar datos en la tabla Módulos:
+app.post('/nuevomodulo', (req,res) => {
+    console.log(req.body);
+    let datosNuevoModulo = {
+        calle: req.body.calle,
+        ciudad: req.body.ciudad,
+        provincia: req.body.provincia,
+        diaSemana: req.body.diaSemana,
+        horaInicio: req.body.horaInicio,
+        duracion: req.body.duracion,
+        cantidadTurnos: req.body.cantidadTurnos,
+        usuarioMedico: req.session.datosMedico.usuarioMedico
+    };
+    conexion.query(`INSERT INTO modulos SET ?;`, datosNuevoModulo, err => {
+        if (err) throw err;
+        res.redirect('/panelmedico');
+    })
+});
+
+//? POST para Modificar datos en la tabla Módulos:
+app.post('/updatemodulo', (req,res) => {
+    let datosUpdateModulo = {
+        calle: req.body.calle,
+        ciudad: req.body.ciudad,
+        provincia: req.body.provincia,
+        diaSemana: req.body.diaSemana,
+        horaInicio: req.body.horaInicio,
+        duracion: req.body.duracion,
+        cantidadTurnos: req.body.cantidadTurnos,
+    };
+    conexion.query(`UPDATE modulos SET ? WHERE idModulo = ${req.body.idModulo};`, datosUpdateModulo, err => {
+        if (err) throw err;
+        res.redirect('/panelmedico');
+    })
+});
+
+//? POST para Eliminar Módulos:
+app.post('/deletemodulo', (req,res) => {
+    console.log(req.body);
+    conexion.query(`DELETE FROM modulos WHERE idModulo = ${req.body.idModulo};`, err => {
+        if (err) throw err;
+        res.redirect('/panelmedico');
+    })
+});
+
 app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);
 });
 
-//TODO Empezar a desarrollar el panel de los médicos ---> Perfil // Obras Sociales // Módulos // Agenda
+//TODO Panel de los médicos ---> Agenda
 
-//TODO Desarrollar el panel de los pacientes ---> Perfil // Buscador // Mis turnos
+//TODO Desarrollar el panel de los pacientes ---> (Perfil) // Buscador // Mis turnos

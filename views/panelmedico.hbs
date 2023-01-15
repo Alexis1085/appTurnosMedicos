@@ -104,11 +104,40 @@
         </div>
     </div>
     <div class="tab-pane fade" id="modulos-tab-pane" role="tabpanel" aria-labelledby="modulos-tab" tabindex="0">
-        <div class="container">
-            <h4>Mis Módulos</h4>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <div class="container vh-75">
+            <div class="d-flex justify-content-between mt-3">
+                <h4>Mis Módulos</h4>
                 <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarModulo">+ Agregar Nuevo Módulo</button>
             </div>
+            <table class="table table-striped table-sm table-hover table-warning mt-3" id="tablaModulos">
+                <thead>
+                    <tr class="">
+                        <th scope="col" colspan="3" class="text-center">Dirección</th>
+                        <th scope="col">Día de la semana</th>
+                        <th scope="col">Hora de inicio</th>
+                        <th scope="col">Duración de los turnos</th>
+                        <th scope="col">Cantidad de turnos</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody class="overflow-auto">
+                    {{#each datosModulos}}
+                    <tr>
+                        <td>{{calle}}</td>
+                        <td>{{ciudad}}</td>
+                        <td>{{provincia}}</td>
+                        <td class="text-center">{{diaSemana}}</td>
+                        <td class="text-center">{{horaInicio}}</td>
+                        <td class="text-center">{{duracion}} min</td>
+                        <td class="text-center">{{cantidadTurnos}}</td>
+                        <td>
+                            <button type="button" class="btn btn-info btn-sm" id="btnModificarModulo" data-bs-toggle="modal" data-bs-target="#modalModificarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemana="{{diaSemana}}" data-horainicio="{{horaInicio}}" data-duracion="{{duracion}}" data-cantidadturnos="{{cantidadTurnos}}">Modificar</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="btnEliminarModulo" data-bs-toggle="modal" data-bs-target="#modalEliminarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemana="{{diaSemana}}" data-horainicio="{{horaInicio}}">Eliminar</button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
         </div>
 
 
@@ -171,8 +200,142 @@
             </div>
         </div>
 
+        {{! Modal para Modificar Módulos}}
+        <div class="modal fade" id="modalModificarModulo" tabindex="-1" aria-labelledby="modificarModulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="/updatemodulo" method="post">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="modificarModulo">Modificar Módulo</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label fs-5">Dirección del Consultorio:</label>
+                                <br>
+                                <label for="calle" class="form-label">Calle</label>
+                                <input type="text" class="form-control" name="calle" id="calleModificar" required>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="ciudad" class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control" name="ciudad" id="ciudadModificar" required>
+                                </div>
+                                <div class="col">
+                                    <label for="provincia" class="form-label">Provincia</label>
+                                    <input type="text" class="form-control" name="provincia" id="provinciaModificar" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="diaSemana" class="form-label">Día de la semana:</label>
+                                <select class="form-select" name="diaSemana" id="diaSemanaModificar" required>
+                                    <option value="lunes">lunes</option>
+                                    <option value="martes">martes</option>
+                                    <option value="miercoles">miércoles</option>
+                                    <option value="jueves">jueves</option>
+                                    <option value="viernes">viernes</option>
+                                    <option value="sabado">sábado</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="horaInicio" class="form-label">Horario de Inicio del Módulo:</label>
+                                <input type="time" class="form-control" name="horaInicio" id="horaInicioModificar" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="duracion" class="form-label">Duración de cada turno (minutos):</label>
+                                <input type="number" class="form-control" name="duracion" id="duracionModificar" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cantidadTurnos" class="form-label">Cantidad de turnos del Módulo:</label>
+                                <input type="number" class="form-control" name="cantidadTurnos" id="cantidadTurnosModificar" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="hidden" name="idModulo" id="idModuloModificar">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-info">Modificar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{! Modal para Eliminar Módulos}}
+        <div class="modal fade" id="modalEliminarModulo" tabindex="-1" aria-labelledby="eliminarModulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="/deletemodulo" method="post">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="eliminarModulo">¿Desea eliminar este Módulo?</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="fs-6 fw-semibold"><span id="calleDelete">Calle</span>, <span id="ciudadDelete">Ciudad</span>, <span id="provinciaDelete">Provincia</span></p>
+                            <p class="fs-6 fw-semibold"><span id="diaSemanaDelete">Día de la semana</span> - <span id="horaInicioDelete">Hora de Inicio</span></p>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="hidden" name="idModulo" id="idModuloDelete">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div class="tab-pane fade" id="agenda-tab-pane" role="tabpanel" aria-labelledby="agenda-tab" tabindex="0">
         <h4>Mis Agendas</h4>
     </div>
 </div>
+
+
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+
+<script>
+    // JQuery para pasar la información a los Modales y por estos al backend:
+    $(document).ready(function() {
+        //Modal de Modificar Módulos
+        $('#tablaModulos').on('click', '#btnModificarModulo', function() {
+            //Creación de variables para pasarle la información al Modal
+            let idModal = $(this).data('idmodulo');
+            let calleModal = $(this).data('calle');
+            let ciudadModal = $(this).data('ciudad');
+            let provinciaModal = $(this).data('provincia');
+            let diaSemanaModal = $(this).data('diasemana');
+            let horaInicioModal = $(this).data('horainicio');
+            let duracionModal = $(this).data('duracion');
+            let cantidadTurnosModal = $(this).data('cantidadturnos');
+            //Asignación de los valores a los inputs del Modal
+            $('#idModuloModificar').val(idModal);
+            $('#calleModificar').val(calleModal);
+            $('#ciudadModificar').val(ciudadModal);
+            $('#provinciaModificar').val(provinciaModal);
+            $('#diaSemanaModificar').val(diaSemanaModal);
+            $('#horaInicioModificar').val(horaInicioModal);
+            $('#duracionModificar').val(duracionModal);
+            $('#cantidadTurnosModificar').val(cantidadTurnosModal);
+        })
+
+        //Modal de Eliminar Módulos
+        $('#tablaModulos').on('click', '#btnEliminarModulo', function() {
+            //Creación de variables para pasarle la información al Modal
+            let idModal = $(this).data('idmodulo');
+            let calleModal = $(this).data('calle');
+            let ciudadModal = $(this).data('ciudad');
+            let provinciaModal = $(this).data('provincia');
+            let diaSemanaModal = $(this).data('diasemana');
+            let horaInicioModal = $(this).data('horainicio');
+            //Asignación del id del Módulo al input tipo hidden que pasará al backend
+            $('#idModuloDelete').val(idModal);
+            //Renderizar la información del Módulo en el Modal
+            $('#calleDelete').html(calleModal);
+            $('#ciudadDelete').html(ciudadModal);
+            $('#provinciaDelete').html(provinciaModal);
+            $('#diaSemanaDelete').html(diaSemanaModal);
+            $('#horaInicioDelete').html(horaInicioModal);
+        })
+    })
+</script>
