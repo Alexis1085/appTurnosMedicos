@@ -104,7 +104,73 @@
         </div>
     </div>
     <div class="tab-pane fade" id="modulos-tab-pane" role="tabpanel" aria-labelledby="modulos-tab" tabindex="0">
-        <h4>Mis Módulos</h4>
+        <div class="container">
+            <h4>Mis Módulos</h4>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalAgregarModulo">+ Agregar Nuevo Módulo</button>
+            </div>
+        </div>
+
+
+        {{! Modal para Agregar Nuevos Módulos}}
+        <div class="modal fade" id="modalAgregarModulo" tabindex="-1" aria-labelledby="nuevoModulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="/nuevomodulo" method="post">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="nuevoModulo">Complete el formulario para agregar un nuevo módulo de atención</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label fs-5">Dirección del Consultorio:</label>
+                                <br>
+                                <label for="calle" class="form-label">Calle</label>
+                                <input type="text" class="form-control" name="calle" id="calle" required>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="ciudad" class="form-label">Ciudad</label>
+                                    <input type="text" class="form-control" name="ciudad" id="ciudad" required>
+                                </div>
+                                <div class="col">
+                                    <label for="provincia" class="form-label">Provincia</label>
+                                    <input type="text" class="form-control" name="provincia" id="provincia" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="diaSemana" class="form-label">Día de la semana:</label>
+                                <select class="form-select" name="diaSemana" id="diaSemana" required>
+                                    <option value="lunes">lunes</option>
+                                    <option value="martes">martes</option>
+                                    <option value="miercoles">miércoles</option>
+                                    <option value="jueves">jueves</option>
+                                    <option value="viernes">viernes</option>
+                                    <option value="sabado">sábado</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="horaInicio" class="form-label">Horario de Inicio del Módulo:</label>
+                                <input type="time" class="form-control" name="horaInicio" id="horaInicio" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="duracion" class="form-label">Duración de cada turno (minutos):</label>
+                                <input type="number" class="form-control" name="duracion" id="duracion" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cantidadTurnos" class="form-label">Cantidad de turnos del Módulo:</label>
+                                <input type="number" class="form-control" name="cantidadTurnos" id="cantidadTurnos" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Agregar Modulo</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div class="tab-pane fade" id="agenda-tab-pane" role="tabpanel" aria-labelledby="agenda-tab" tabindex="0">
         <h4>Mis Agendas</h4>
