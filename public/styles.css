@@ -1,0 +1,5 @@
+
+.encabezado {
+    background: rgb(143,236,255);
+    background: linear-gradient(63deg, rgba(143,236,255,1) 0%, rgba(255,250,155,1) 27%, rgba(0,212,255,1) 100%);
+}

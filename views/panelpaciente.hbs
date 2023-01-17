@@ -1,8 +1,9 @@
 
-<h2>Bienvenido usuario {{datosPaciente.nombrePaciente}} {{datosPaciente.apellidoPaciente}}</h2>
-
+<div class="d-flex justify-content-around mt-2">
+    <h2>Bienvenido usuario {{datosPaciente.nombrePaciente}} {{datosPaciente.apellidoPaciente}}</h2>
+    <a href="/logout" class="btn btn-dark">Cerrar sesión</a>
+</div>
 <br>
-<a href="/logout" class="btn btn-dark">Cerrar sesión</a>
 
 {{! Panel}}
 <ul class="nav nav-tabs" id="myTab" role="tablist">

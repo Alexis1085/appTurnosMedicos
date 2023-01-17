@@ -50,14 +50,14 @@ const conexion = mysql.createConnection({
 });
 conexion.connect(err => {
     if (err) throw err;
-    console.log(`Conectado a la base de datos ${process.env.DB_NAME}`);
+    //console.log(`Conectado a la base de datos ${process.env.DB_NAME}`);
 });
 
 //*Creación de Variables globales para el funcionamiento de la app
 let listaObrasSociales;
 conexion.query("SELECT * FROM obras_sociales;", (err,result) => {
     if (err) throw err;
-    console.log(result);
+    //console.log(result);
     listaObrasSociales = result;
 });
 
@@ -90,7 +90,6 @@ app.get('/panelmedico', (req,res) => {
                     return aux;
                 });
                 res.render('panelmedico', {
-                    //login: true,
                     datosMedico: req.session.datosMedico,
                     datosObrasSociales: osMedico,
                     datosModulos: result_mod
@@ -99,26 +98,17 @@ app.get('/panelmedico', (req,res) => {
         })
     } else {
         res.redirect('/');
-        /* res.render('home', {
-            //login: false,
-            datosObrasSociales: listaObrasSociales
-        }) */
     }
 });
 
 app.get('/panelpaciente', (req,res) => {
     if (req.session.loggedin && req.session.rol == 'paciente'){
         res.render('panelpaciente', {
-            //login: true,
             datosPaciente: req.session.datosPaciente,
             datosObrasSociales: listaObrasSociales
         })
     } else {
         res.redirect('/');
-        /* res.render('home', {
-            //login: false,
-            datosObrasSociales: listaObrasSociales
-        }) */
     }
 });
 
@@ -130,7 +120,7 @@ app.get('/logout', (req,res) => {
 
 //? POST para el registro de nuevos médicos
 app.post('/nuevoMedico', async (req,res) => {
-    console.log(req.body);
+    //console.log(req.body);
     let passMedico = req.body.passMedico;
     let hashPassMedico = await bcrypt.hash(passMedico, 8);
     let datosNuevoMedico = {
@@ -143,7 +133,7 @@ app.post('/nuevoMedico', async (req,res) => {
     };    
     conexion.query("INSERT INTO medicos SET ?", datosNuevoMedico, err => {
         if (err) throw err;
-        console.log(`1 nuevo Médico agregado a la Base de Datos`);
+        //console.log(`1 nuevo Médico agregado a la Base de Datos`);
         req.session.loggedin = true;
         req.session.rol = 'medico';
         conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = '${datosNuevoMedico.usuarioMedico}';`, (err,result) => {
@@ -151,13 +141,12 @@ app.post('/nuevoMedico', async (req,res) => {
             req.session.datosMedico = result[0];
             res.redirect('/panelmedico')
         })    
-        /* res.send(`Hola Doctor@ ${datosNuevoMedico.apellidoMedico}! Usted fue agregado a la base de datos de la app`); */
     })    
 });    
 
 //? POST para el registro de nuevos pacientes
 app.post('/nuevoPaciente', async (req,res) => {
-    console.log(req.body);
+    //console.log(req.body);
     let passPaciente = req.body.passPaciente;
     let hashPassPaciente = await bcrypt.hash(passPaciente, 8);
     let datosNuevoPaciente = {
@@ -172,7 +161,7 @@ app.post('/nuevoPaciente', async (req,res) => {
     };    
     conexion.query("INSERT INTO pacientes SET ?", datosNuevoPaciente, err => {
         if (err) throw err;
-        console.log(`1 nuevo usuario agregado a la base de datos`);
+        //console.log(`1 nuevo usuario agregado a la base de datos`);
         req.session.loggedin = true;
         req.session.rol = 'paciente';
         conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = '${datosNuevoPaciente.usuarioPaciente}';`, (err,result) => {
@@ -181,10 +170,8 @@ app.post('/nuevoPaciente', async (req,res) => {
             req.session.datosPaciente = result[0];
             res.redirect('/panelpaciente');
         })    
-        /* res.send(`Hola ${datosNuevoPaciente.nombrePaciente}, fuiste agregad@ a la base de datos`); */
     })    
 })    
-
 
 //? POST para el "log in" de los médicos
 app.post('/loginmedico', async (req,res) => {
@@ -198,15 +185,11 @@ app.post('/loginmedico', async (req,res) => {
         } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passMedico))) {
             res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
         } else {
-            console.log("Login correcto");
+            //console.log("Login correcto");
             req.session.loggedin = true;
             req.session.rol = 'medico';
             req.session.datosMedico = result[0];
             res.redirect('/panelmedico');
-            /* res.render('panelmedico', {
-                //login: true,
-                datosMedico: req.session.datosMedico
-                }) */
         }        
     })    
 });    
@@ -223,17 +206,13 @@ app.post('/loginpaciente', async (req,res) => {
         } else if (result.length == 0 || !(await bcrypt.compare(password, result[0].passPaciente))) {
             res.send('<h4>Usuario y/o contraseña incorrectos</h4><a href="/">Volver</a>');
         } else {
-            console.log("Login correcto");
+            //console.log("Login correcto");
             result[0].fechaNacimiento = dayjs(result[0].fechaNacimiento).format('YYYY-MM-DD');
-            console.log(result);
+            //console.log(result);
             req.session.loggedin = true;
             req.session.rol = 'paciente';
             req.session.datosPaciente = result[0];
             res.redirect('/panelpaciente')
-            /* res.render('panelpaciente', {
-                //login: true,
-                datosPaciente: req.session.datosPaciente
-                }) */
         }        
     })    
 });    
@@ -248,7 +227,7 @@ app.post('/actualizarMedico', (req,res) => {
     };
     conexion.query(`UPDATE medicos SET ? WHERE usuarioMedico = "${req.session.datosMedico.usuarioMedico}";`, updateMedico, err => {
         if (err) throw err;
-        console.log("Medico actualizado");
+        //console.log("Medico actualizado");
         conexion.query(`SELECT * FROM medicos WHERE usuarioMedico = "${req.session.datosMedico.usuarioMedico}";`, (err,result) => {
             if (err) throw err;
             req.session.datosMedico = result[0];
@@ -269,7 +248,7 @@ app.post('/actualizarpaciente', (req,res) => {
     };
     conexion.query(`UPDATE pacientes SET ? WHERE usuarioPaciente = "${req.session.datosPaciente.usuarioPaciente}";`, updatePaciente, err => {
         if (err) throw err;
-        console.log("Paciente actualizado");
+        //console.log("Paciente actualizado");
         conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = "${req.session.datosPaciente.usuarioPaciente}";`, (err,result) => {
             if (err) throw err;
             result[0].fechaNacimiento = dayjs(result[0].fechaNacimiento).format('YYYY-MM-DD');
@@ -279,15 +258,14 @@ app.post('/actualizarpaciente', (req,res) => {
     })
 });
 
-
 //? POST para el CRUD de la tabla "os_medicos" que define qué Obra Social atiende cada médico:
 app.post('/os_medicos', (req,res) => {
-    console.log(req.body);
+    //console.log(req.body);
     let osNuevas = req.body.idOS;
-    console.log(osNuevas);
+    //console.log(osNuevas);
     conexion.query(`SELECT idOS FROM os_medicos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}' ORDER BY idOS ASC;`, (err,result) => {
         if (err) throw err;
-        console.log(result);
+        //console.log(result);
         let osExistentes = result;
         //Algoritmo para agregar las Nuevas Obras Sociales que eligió el médico
         for (var i=0; i< osNuevas.length; i++) {
@@ -319,7 +297,7 @@ app.post('/os_medicos', (req,res) => {
 
 //? POST para Insertar datos en la tabla Módulos:
 app.post('/nuevomodulo', (req,res) => {
-    console.log(req.body);
+    //console.log(req.body);
     let datosNuevoModulo = {
         calle: req.body.calle,
         ciudad: req.body.ciudad,
@@ -355,7 +333,7 @@ app.post('/updatemodulo', (req,res) => {
 
 //? POST para Eliminar Módulos:
 app.post('/deletemodulo', (req,res) => {
-    console.log(req.body);
+    //console.log(req.body);
     conexion.query(`DELETE FROM modulos WHERE idModulo = ${req.body.idModulo};`, err => {
         if (err) throw err;
         res.redirect('/panelmedico');
@@ -363,7 +341,7 @@ app.post('/deletemodulo', (req,res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Servidor conectado al Puerto ${port}`);
+    //console.log(`Servidor conectado al Puerto ${port}`);
 });
 
 //TODO Panel de los médicos ---> Agenda
