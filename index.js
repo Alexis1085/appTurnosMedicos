@@ -12,7 +12,7 @@ const dayjs = require('dayjs');
 require('dotenv').config();
 /* Formato de las variables de entorno:
 SESSION_SECRET=
-SERVER_PORT=
+PORT=
 DB_HOST=
 DB_PORT=
 DB_USER=
@@ -28,7 +28,7 @@ app.use(session({
     saveUninitialized: false
 }));
 
-const port = process.env.SERVER_PORT || 9000;
+const port = process.env.PORT || 9000;
 
 //* Middlewares:
 app.use(express.json());
