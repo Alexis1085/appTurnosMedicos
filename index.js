@@ -341,7 +341,7 @@ app.post('/deletemodulo', (req,res) => {
 });
 
 app.listen(port, () => {
-    //console.log(`Servidor conectado al Puerto ${port}`);
+    console.log(`Servidor conectado al Puerto ${port}`);
 });
 
 //TODO Panel de los médicos ---> Agenda
