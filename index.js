@@ -61,6 +61,13 @@ conexion.query("SELECT * FROM obras_sociales;", (err,result) => {
     listaObrasSociales = result;
 });
 
+//* Función para convertir un String del tipo "dd-mm-yyyy" en Fecha:
+function string_a_date(element) {
+    let pedazos = element.split('-');
+    return (new Date(pedazos[2], (pedazos[1] - 1), pedazos[0]));
+};
+
+
 //* Rutas de la Aplicación:
 
 app.get('/', (req,res) => {
@@ -338,6 +345,23 @@ app.post('/deletemodulo', (req,res) => {
         if (err) throw err;
         res.redirect('/panelmedico');
     })
+});
+
+//? POST para Abrir Agenda y crear los turnos:
+app.post('/abriragenda', (req,res) => {
+    console.log(req.body);
+    let fechaApertura = string_a_date(req.body.fechaApertura);
+    let fechaCierre = string_a_date(req.body.fechaCierre);
+    let diaApertura = fechaApertura.getDay();
+    let diaCierre = fechaCierre.getDay();
+    
+    let auxDate;
+    do for() while /*Algoritmo que tome el díaSemana del Módulo y lo compare con diaApertura:
+    * Si coincide lo use como día para insertar en la base de datos, luego auxDate se setee como 7 días después, se fije si no es mayor a fechaCierre y tamién lo inserte, etc. hasta que sea mayor a fechaCierre. 
+    * Si no coincide setear auxDate como diaApertura +1 y volver a comparar hasta que coicidan */
+    console.log(range);
+    console.log(diaApertura, diaCierre);
+    res.redirect('/panelmedico');
 });
 
 app.listen(port, () => {

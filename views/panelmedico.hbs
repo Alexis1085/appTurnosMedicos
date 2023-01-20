@@ -284,6 +284,29 @@
     </div>
     <div class="tab-pane fade" id="agenda-tab-pane" role="tabpanel" aria-labelledby="agenda-tab" tabindex="0">
         <h4>Mis Agendas</h4>
+        <button class="btn btn-info">Abrir Agenda</button>
+        
+        {{!Esto va en un Modal}}
+        <form action="/abriragenda" method="post">
+        <div class="mb-3">
+            <label for="modulo" class="form-label">Seleccione el Módulo para el cual abrir agenda:</label>
+            <select class="form-select" name="idModulo" id="modulo" required>
+                {{#each datosModulos}}
+                <option value="{{idModulo}}" label="{{calle}}, {{ciudad}} - {{diaSemana}} - {{horaInicio}}">
+                {{/each}}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="fechaApertura" class="form-label">Desde Fecha:</label>
+            <input type="text" class="form-control" name="fechaApertura" id="fechaApertura" required>
+        </div>
+        <div class="mb-3">
+            <label for="fechaCierre" class="form-label">Hasta Fecha:</label>
+            <input type="text" class="form-control" name="fechaCierre" id="fechaCierre" required>
+        </div>
+        <p>Los turnos una vez publicados no podrán ser modificados</p>
+        <button type="submit" class="btn btn-info">Publicar Turnos</button>
+        </form>
     </div>
 </div>
 
@@ -291,6 +314,10 @@
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+
+{{! JQuery UI}}
+<script src="external/jquery/jquery.js"></script>
+<script src="jquery-ui.js"></script>
 
 <script>
     // JQuery para pasar la información a los Modales y por estos al backend:
@@ -336,4 +363,40 @@
             $('#horaInicioDelete').html(horaInicioModal);
         })
     })
+</script>
+
+<script>
+    //JQuery UI para el DatePicker de la Agenda:
+    $(function() {
+        var dateFormat = "dd-mm-yy",
+        from = $("#fechaApertura").datepicker({
+            minDate: 0,
+            defaultDate: "0",
+            showOtherMonths: true,
+            selectOtherMonths: true,
+            numberOfMonths: 1,
+            dateFormat: "dd-mm-yy"
+        }).on("change", function() {
+            to.datepicker("option", "minDate", getDate(this));
+        }),
+        to = $("#fechaCierre").datepicker({
+            //minDate: 0,
+            //defaultDate: "0",
+            showOtherMonths: true,
+            selectOtherMonths: true,
+            numberOfMonths: 2,
+            dateFormat: "dd-mm-yy"
+        }).on("change", function() {
+            from.datepicker("option", "maxDate", getDate(this));
+        });
+
+        function getDate(element) {
+            var date;
+            try {
+                date = $.datepicker.parseDate(dateFormat, element.value);
+            } catch(error) {
+                date = null;
+            } return date;
+        }
+    });
 </script>
