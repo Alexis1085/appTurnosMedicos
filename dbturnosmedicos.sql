@@ -41,10 +41,10 @@ idModulo int unsigned not null auto_increment,
 calle varchar(100) not null,
 ciudad varchar(50) not null,
 provincia varchar(30) not null,
-diaSemana varchar(10) not null,
+diaSemana tinyint unsigned not null,
 horaInicio time not null,
-duracion int unsigned not null,
-cantidadTurnos int unsigned not null,
+duracion tinyint unsigned not null,
+cantidadTurnos tinyint unsigned not null,
 usuarioMedico varchar(8) not null,
 primary key (idModulo),
 foreign key (usuarioMedico) references medicos(usuarioMedico)
@@ -77,3 +77,5 @@ foreign key (usuarioPaciente) references pacientes(usuarioPaciente)
 );
 
 -- drop database turnosmedicos; --
+-- drop table turnos; --
+-- drop table modulos; --

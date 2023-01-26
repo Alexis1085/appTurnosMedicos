@@ -124,13 +124,13 @@
                         <td>{{calle}}</td>
                         <td>{{ciudad}}</td>
                         <td>{{provincia}}</td>
-                        <td class="text-center">{{diaSemana}}</td>
+                        <td class="text-center">{{diaSemanaString}}</td>
                         <td class="text-center">{{horaInicio}}</td>
                         <td class="text-center">{{duracion}} min</td>
                         <td class="text-center">{{cantidadTurnos}}</td>
                         <td>
                             <button type="button" class="btn btn-info btn-sm" id="btnModificarModulo" data-bs-toggle="modal" data-bs-target="#modalModificarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemana="{{diaSemana}}" data-horainicio="{{horaInicio}}" data-duracion="{{duracion}}" data-cantidadturnos="{{cantidadTurnos}}">Modificar</button>
-                            <button type="button" class="btn btn-danger btn-sm" id="btnEliminarModulo" data-bs-toggle="modal" data-bs-target="#modalEliminarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemana="{{diaSemana}}" data-horainicio="{{horaInicio}}">Eliminar</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="btnEliminarModulo" data-bs-toggle="modal" data-bs-target="#modalEliminarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemanastring="{{diaSemanaString}}" data-horainicio="{{horaInicio}}">Eliminar</button>
                         </td>
                     </tr>
                     {{/each}}
@@ -168,12 +168,12 @@
                             <div class="mb-3">
                                 <label for="diaSemana" class="form-label">Día de la semana:</label>
                                 <select class="form-select" name="diaSemana" id="diaSemana" required>
-                                    <option value="lunes">lunes</option>
-                                    <option value="martes">martes</option>
-                                    <option value="miercoles">miércoles</option>
-                                    <option value="jueves">jueves</option>
-                                    <option value="viernes">viernes</option>
-                                    <option value="sabado">sábado</option>
+                                    <option value="1">lunes</option>
+                                    <option value="2">martes</option>
+                                    <option value="3">miércoles</option>
+                                    <option value="4">jueves</option>
+                                    <option value="5">viernes</option>
+                                    <option value="6">sábado</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -227,12 +227,12 @@
                             <div class="mb-3">
                                 <label for="diaSemana" class="form-label">Día de la semana:</label>
                                 <select class="form-select" name="diaSemana" id="diaSemanaModificar" required>
-                                    <option value="lunes">lunes</option>
-                                    <option value="martes">martes</option>
-                                    <option value="miercoles">miércoles</option>
-                                    <option value="jueves">jueves</option>
-                                    <option value="viernes">viernes</option>
-                                    <option value="sabado">sábado</option>
+                                    <option value="1">lunes</option>
+                                    <option value="2">martes</option>
+                                    <option value="3">miércoles</option>
+                                    <option value="4">jueves</option>
+                                    <option value="5">viernes</option>
+                                    <option value="6">sábado</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -292,7 +292,7 @@
             <label for="modulo" class="form-label">Seleccione el Módulo para el cual abrir agenda:</label>
             <select class="form-select" name="idModulo" id="modulo" required>
                 {{#each datosModulos}}
-                <option value="{{idModulo}}" label="{{calle}}, {{ciudad}} - {{diaSemana}} - {{horaInicio}}">
+                <option value="{{idModulo}}" label="{{calle}}, {{ciudad}} - {{diaSemanaString}} - {{horaInicio}}">
                 {{/each}}
             </select>
         </div>
@@ -351,7 +351,7 @@
             let calleModal = $(this).data('calle');
             let ciudadModal = $(this).data('ciudad');
             let provinciaModal = $(this).data('provincia');
-            let diaSemanaModal = $(this).data('diasemana');
+            let diaSemanaStringModal = $(this).data('diasemanastring');
             let horaInicioModal = $(this).data('horainicio');
             //Asignación del id del Módulo al input tipo hidden que pasará al backend
             $('#idModuloDelete').val(idModal);
@@ -359,7 +359,7 @@
             $('#calleDelete').html(calleModal);
             $('#ciudadDelete').html(ciudadModal);
             $('#provinciaDelete').html(provinciaModal);
-            $('#diaSemanaDelete').html(diaSemanaModal);
+            $('#diaSemanaDelete').html(diaSemanaStringModal);
             $('#horaInicioDelete').html(horaInicioModal);
         })
     })

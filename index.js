@@ -7,8 +7,10 @@ const mysql = require('mysql2');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const hbs = require('hbs');
-const bcrypt = require('bcryptjs');
-const dayjs = require('dayjs');
+const bcrypt = require('bcryptjs'); //Para encriptar en el backend las contraseñas de los usuarios
+const dayjs = require('dayjs'); //Dependencia para procesar información de fechas y tiempos
+var customParseFormat = require('dayjs/plugin/customParseFormat'); //Plug-in para trabajar con distintos formatos
+dayjs.extend(customParseFormat);
 require('dotenv').config();
 /* Formato de las variables de entorno:
 SESSION_SECRET=
@@ -21,7 +23,7 @@ DB_NAME=
 EMAIL=
 EMAIL_PASS=
 */
-const session = require('express-session');
+const session = require('express-session'); //Dependencia para crear sesiones de usuarios
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -61,11 +63,11 @@ conexion.query("SELECT * FROM obras_sociales;", (err,result) => {
     listaObrasSociales = result;
 });
 
-//* Función para convertir un String del tipo "dd-mm-yyyy" en Fecha:
-function string_a_date(element) {
+//* Función para convertir un String del tipo "dd-mm-yyyy" en Fecha: - No lo uso porque lo implemento con 'dayjs'
+/* function string_a_date(element) {
     let pedazos = element.split('-');
     return (new Date(pedazos[2], (pedazos[1] - 1), pedazos[0]));
-};
+}; */
 
 
 //* Rutas de la Aplicación:
@@ -81,6 +83,23 @@ app.get('/panelmedico', (req,res) => {
         //*SELECT para traer los datos de la tabla modulos
         conexion.query(`SELECT * FROM modulos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}';`, (err,result_mod) => {
             if (err) throw err;
+            for (i=0; i< result_mod.length; i++) {
+                result_mod[i].diaSemanaString = "a";
+                switch (result_mod[i].diaSemana) {
+                    case 1: result_mod[i].diaSemanaString = "lunes";
+                        break;
+                    case 2: result_mod[i].diaSemanaString = "martes";
+                        break;
+                    case 3: result_mod[i].diaSemanaString = "miércoles";
+                        break;
+                    case 4: result_mod[i].diaSemanaString = "jueves";
+                        break;
+                    case 5: result_mod[i].diaSemanaString = "viernes";
+                        break;
+                    case 6: result_mod[i].diaSemanaString = "sábado";
+                        break;
+                };
+            };
             //console.log(result_mod);
             //* SELECT para traer los datos necesarios para la Solapa Obras Sociales
             conexion.query(`SELECT os.idOS, os.nombreObraSocial, osmed.usuarioMedico FROM obras_sociales AS os LEFT JOIN (
@@ -99,7 +118,7 @@ app.get('/panelmedico', (req,res) => {
                 res.render('panelmedico', {
                     datosMedico: req.session.datosMedico,
                     datosObrasSociales: osMedico,
-                    datosModulos: result_mod
+                    datosModulos: result_mod                    
                 })
             })
         })
@@ -350,17 +369,45 @@ app.post('/deletemodulo', (req,res) => {
 //? POST para Abrir Agenda y crear los turnos:
 app.post('/abriragenda', (req,res) => {
     console.log(req.body);
-    let fechaApertura = string_a_date(req.body.fechaApertura);
-    let fechaCierre = string_a_date(req.body.fechaCierre);
-    let diaApertura = fechaApertura.getDay();
-    let diaCierre = fechaCierre.getDay();
-    
-    let auxDate;
-    do for() while /*Algoritmo que tome el díaSemana del Módulo y lo compare con diaApertura:
-    * Si coincide lo use como día para insertar en la base de datos, luego auxDate se setee como 7 días después, se fije si no es mayor a fechaCierre y tamién lo inserte, etc. hasta que sea mayor a fechaCierre. 
-    * Si no coincide setear auxDate como diaApertura +1 y volver a comparar hasta que coicidan */
-    console.log(range);
-    console.log(diaApertura, diaCierre);
+    //! Como uso JQueryUI en el frontend los inputs de fechas en realidad son tipo text. Así que uso la función "string_a_date" declarada arriba al principio para convertir los datos en tipo 'Date':
+    //let fechaApertura = string_a_date(req.body.fechaApertura); 
+    //let fechaCierre = string_a_date(req.body.fechaCierre);
+    // No lo uso porque lo implemento con 'dayjs'
+    let fechaApertura = new Date(dayjs(req.body.fechaApertura, "DD-MM-YYYY"));
+    let fechaCierre = new Date(dayjs(req.body.fechaCierre, "DD-MM-YYYY"));
+    fechaCierre.setHours(23,59);
+    //console.log(fechaApertura, fechaCierre);
+    //! Query para traer los datos del Módulo de la tabla modulos. "horaInicio" lo transformo en tipo String con "CAST()" para poder usar la función 'split':
+    conexion.query(`SELECT diaSemana, CAST(horaInicio AS CHAR(5)) AS horaInicio, duracion, cantidadTurnos FROM modulos WHERE idModulo = ${req.body.idModulo};`, (err,result) => {
+        if (err) throw err;
+        console.log(result);
+        //! Creo la variable "auxDate" que irá almacenando los valores parciales de los turnos, en fecha y hora:
+        let auxDate = fechaApertura;
+        let pedacitos = result[0].horaInicio.split(":");
+        auxDate.setHours(pedacitos[0]-3, pedacitos[1]);
+        console.log(auxDate);
+        /*
+        ! do{ if ( for() ) }while Algoritmo que toma el díaSemana del Módulo y lo compara con el dia de auxDate (inicialmente igual a fechaApertura):
+        * Si coinciden lo usa como fecha para insertar en la base de datos, luego auxDate se setea como 7 días después, se fija si no es mayor a fechaCierre y también lo inserta. Así hasta que sea mayor a fechaCierre. 
+        * Si no coinciden setea auxDate como fechaApertura +1 y vuelve a comparar hasta que coicidan */
+        do {
+            if (auxDate.getDay() == result[0].diaSemana) {
+                //! Creo la variable "turnos" tipo 'Date' y con el formato apropiado para insertar los valores en la base de datos:
+                let turnos = new Date;
+                for (j=0; j< result[0].cantidadTurnos; j++) {
+                    turnos = dayjs(auxDate).format('YYYYMMDDHHmmss'); //Los datos tipo 'Date' no son como los String o Number. Cuando se asignan con '=' en realidad se referencian y no se copian. Para hacer una copia podía hacer lo siguiente: "turnos[0].setTime(auxDate.getTime())" Yo usé la dependencia 'dayjs' porque ya la había instalado y porque me permite ajustar el formato para poder acer luego el INSERT a la Base de Datos. De la otra forma no lo podía hacer porque el formato en el que quedaba turnos no me lo permitía.
+                    conexion.query(`INSERT INTO turnos (idModulo, turno) VALUES(${req.body.idModulo}, ${turnos});`, err => {if (err) throw err;}); //En la base de datos la hora de los turnos queda guardada como -3 horas por el huso horario. Luego cuando hago el SELECT viene la hora correcta.
+                    auxDate.setMinutes(auxDate.getMinutes() + result[0].duracion);
+                }
+                auxDate.setDate(auxDate.getDate() +7)
+                auxDate.setHours(pedacitos[0]-3, pedacitos[1]);
+                //console.log(auxDate);
+            } else {
+                auxDate.setDate(auxDate.getDate() +1)
+                //console.log(auxDate);
+            }
+        } while (auxDate <= fechaCierre);
+    })
     res.redirect('/panelmedico');
 });
 
