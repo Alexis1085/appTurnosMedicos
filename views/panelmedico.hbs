@@ -110,17 +110,20 @@
             <table class="table table-striped table-sm table-hover table-warning mt-3" id="tablaModulos">
                 <thead>
                     <tr class="">
+                        <th scope="col">Alias</th>
                         <th scope="col" colspan="3" class="text-center">Dirección</th>
-                        <th scope="col">Día de la semana</th>
-                        <th scope="col">Hora de inicio</th>
-                        <th scope="col">Duración de los turnos</th>
-                        <th scope="col">Cantidad de turnos</th>
+                        <th scope="col" class="text-center">Día de la semana</th>
+                        <th scope="col" class="text-center">Hora de inicio</th>
+                        <th scope="col" class="text-center">Duración de los turnos</th>
+                        <th scope="col" class="text-center">Cantidad de turnos</th>
+                        <th scope="col">Mensaje</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody class="overflow-auto">
                     {{#each datosModulos}}
                     <tr>
+                        <th>{{alias}}</th>
                         <td>{{calle}}</td>
                         <td>{{ciudad}}</td>
                         <td>{{provincia}}</td>
@@ -128,9 +131,10 @@
                         <td class="text-center">{{horaInicio}}</td>
                         <td class="text-center">{{duracion}} min</td>
                         <td class="text-center">{{cantidadTurnos}}</td>
+                        <td>{{comentarioModulo}}</td>
                         <td>
-                            <button type="button" class="btn btn-info btn-sm" id="btnModificarModulo" data-bs-toggle="modal" data-bs-target="#modalModificarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemana="{{diaSemana}}" data-horainicio="{{horaInicio}}" data-duracion="{{duracion}}" data-cantidadturnos="{{cantidadTurnos}}">Modificar</button>
-                            <button type="button" class="btn btn-danger btn-sm" id="btnEliminarModulo" data-bs-toggle="modal" data-bs-target="#modalEliminarModulo" data-idmodulo="{{idModulo}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemanastring="{{diaSemanaString}}" data-horainicio="{{horaInicio}}">Eliminar</button>
+                            <button type="button" class="btn btn-info btn-sm" id="btnModificarModulo" data-bs-toggle="modal" data-bs-target="#modalModificarModulo" data-idmodulo="{{idModulo}}" data-alias="{{alias}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemana="{{diaSemana}}" data-horainicio="{{horaInicio}}" data-duracion="{{duracion}}" data-cantidadturnos="{{cantidadTurnos}}" data-comentario="{{comentarioModulo}}">Modificar</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="btnEliminarModulo" data-bs-toggle="modal" data-bs-target="#modalEliminarModulo" data-idmodulo="{{idModulo}}" data-alias="{{alias}}" data-calle="{{calle}}" data-ciudad="{{ciudad}}" data-provincia="{{provincia}}" data-diasemanastring="{{diaSemanaString}}" data-horainicio="{{horaInicio}}">Eliminar</button>
                         </td>
                     </tr>
                     {{/each}}
@@ -188,6 +192,14 @@
                                 <label for="cantidadTurnos" class="form-label">Cantidad de turnos del Módulo:</label>
                                 <input type="number" class="form-control" name="cantidadTurnos" id="cantidadTurnos" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="comentarioModulo" class="form-label">Agregue un mensaje para el paciente:</label>
+                                <textarea class="form-control" name="comentarioModulo" id="comentarioModulo" rows="4" required>Ejemplo: qué documentación precisa al concurrir al turno, cuánto tiempo antes debe presentarse, qué información es necesaria que el paciente aclare al momento de reservar el turno</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="alias" class="form-label">Alias:</label>
+                                <input type="text" class="form-control" name="alias" id="alias" placeholder="El alias es una referencia con la que usted pueda identificar rápidamente al Módulo. Ejemplo: consul mierc mañana" required>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -208,6 +220,10 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="alias" class="form-label">Alias:</label>
+                                <input type="text" class="form-control" name="alias" id="aliasModificar" required>
+                            </div>
                             <div class="mb-3">
                                 <label for="direccion" class="form-label fs-5">Dirección del Consultorio:</label>
                                 <br>
@@ -247,6 +263,10 @@
                                 <label for="cantidadTurnos" class="form-label">Cantidad de turnos del Módulo:</label>
                                 <input type="number" class="form-control" name="cantidadTurnos" id="cantidadTurnosModificar" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="comentarioModulo" class="form-label">Mensaje para el paciente:</label>
+                                <textarea class="form-control" name="comentarioModulo" id="comentarioModuloModificar" rows="4" required></textarea>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <input type="hidden" name="idModulo" id="idModuloModificar">
@@ -268,6 +288,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <h3 class="fs-4 fw-bold fst-italic" id="aliasDelete">Alias</h3>
                             <p class="fs-6 fw-semibold"><span id="calleDelete">Calle</span>, <span id="ciudadDelete">Ciudad</span>, <span id="provinciaDelete">Provincia</span></p>
                             <p class="fs-6 fw-semibold"><span id="diaSemanaDelete">Día de la semana</span> - <span id="horaInicioDelete">Hora de Inicio</span></p>
                         </div>
@@ -283,30 +304,87 @@
 
     </div>
     <div class="tab-pane fade" id="agenda-tab-pane" role="tabpanel" aria-labelledby="agenda-tab" tabindex="0">
-        <h4>Mis Agendas</h4>
-        <button class="btn btn-info">Abrir Agenda</button>
+        <div class="container">
+            <div class="d-flex justify-content-between mt-3 mb-2">
+                <h4>Mis Agendas</h4>
+                <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#modalAbrirAgenda">Abrir Agenda</button>
+            </div>
+            {{!Tabs de jQuery-UI para mostrar la agenda:}}
+            <div id="tabs" style="border: none;">
+                <ul>
+                    <li><a href="#tabs-1">Nunc tincidunt</a></li>
+                    <li><a href="#tabs-2">Proin dolor</a></li>
+                    <li><a href="#tabs-3">Aenean lacinia</a></li>
+                    <li><a href="#tabs-3">Aenean lacinialalallalalallalalallalalalalallalallalalalal</a></li>
+                </ul>
+                <div id="tabs-1">
+                    <div id="verticaltabs">
+                        <ul>
+                            <li><a href="#tabsV-1">Nunc tincidunt</a></li>
+                            <li><a href="#tabsV-2">Proin dolor</a></li>
+                            <li><a href="#tabsV-3">Aenean lacinia</a></li>
+                        </ul>
+                        <div id="tabsV-1">
+                            <h2>Content heading 1</h2>
+                            <p>Proin s. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae odit ducimus provident laudantium voluptates ut dignissimos ipsam eos, accusantium, accusamus quos error eius voluptas et iusto voluptate laborum placeat expedita.</p>
+                        </div>
+                        <div id="tabsV-2">
+                            <h2>Content heading 2</h2>
+                            <p>Morbi uris consectetur tortor et purus.</p>
+                        </div>
+                        <div id="tabsV-3">
+                            <h2>Content heading 3</h2>
+                            <p>Mauris eleusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="tabs-2">
+                    <p>Morbi tincidunt, dui sit amet facilisis feugiat, odi.</p>
+                </div>
+                <div id="tabs-3">
+                    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aendrerit.</p>
+                </div>
+            </div>
+        </div>
         
-        {{!Esto va en un Modal}}
-        <form action="/abriragenda" method="post">
-        <div class="mb-3">
-            <label for="modulo" class="form-label">Seleccione el Módulo para el cual abrir agenda:</label>
-            <select class="form-select" name="idModulo" id="modulo" required>
-                {{#each datosModulos}}
-                <option value="{{idModulo}}" label="{{calle}}, {{ciudad}} - {{diaSemanaString}} - {{horaInicio}}">
-                {{/each}}
-            </select>
+        {{! Modal para Abrir Agenda}}
+        <div class="modal fade" id="modalAbrirAgenda" tabindex="-1" aria-labelledby="abrirAgenda" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form action="/abriragenda" method="post">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="abrirAgenda">Abrir Agenda</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="modulo" class="form-label">Seleccione el Módulo para el cual abrir agenda:</label>
+                                <select class="form-select" name="idModulo" id="modulo" required>
+                                    {{#each datosModulos}}
+                                    <option value="{{idModulo}}" label="{{alias}}">
+                                    {{/each}}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaApertura" class="form-label">Desde Fecha:</label>
+                                <input type="text" class="form-control" name="fechaApertura" id="fechaApertura" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaCierre" class="form-label">Hasta Fecha:</label>
+                                <input type="text" class="form-control" name="fechaCierre" id="fechaCierre" required>
+                            </div>
+                            <p>Los turnos una vez publicados no podrán ser modificados</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Descartar</button>
+                            <button type="submit" class="btn btn-info">Publicar Turnos</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="fechaApertura" class="form-label">Desde Fecha:</label>
-            <input type="text" class="form-control" name="fechaApertura" id="fechaApertura" required>
-        </div>
-        <div class="mb-3">
-            <label for="fechaCierre" class="form-label">Hasta Fecha:</label>
-            <input type="text" class="form-control" name="fechaCierre" id="fechaCierre" required>
-        </div>
-        <p>Los turnos una vez publicados no podrán ser modificados</p>
-        <button type="submit" class="btn btn-info">Publicar Turnos</button>
-        </form>
+
+
     </div>
 </div>
 
@@ -326,6 +404,7 @@
         $('#tablaModulos').on('click', '#btnModificarModulo', function() {
             //Creación de variables para pasarle la información al Modal
             let idModal = $(this).data('idmodulo');
+            let aliasModal = $(this).data('alias');
             let calleModal = $(this).data('calle');
             let ciudadModal = $(this).data('ciudad');
             let provinciaModal = $(this).data('provincia');
@@ -333,8 +412,10 @@
             let horaInicioModal = $(this).data('horainicio');
             let duracionModal = $(this).data('duracion');
             let cantidadTurnosModal = $(this).data('cantidadturnos');
+            let comentarioModuloModal = $(this).data('comentario');
             //Asignación de los valores a los inputs del Modal
             $('#idModuloModificar').val(idModal);
+            $('#aliasModificar').val(aliasModal);
             $('#calleModificar').val(calleModal);
             $('#ciudadModificar').val(ciudadModal);
             $('#provinciaModificar').val(provinciaModal);
@@ -342,12 +423,14 @@
             $('#horaInicioModificar').val(horaInicioModal);
             $('#duracionModificar').val(duracionModal);
             $('#cantidadTurnosModificar').val(cantidadTurnosModal);
+            $('#comentarioModuloModificar').val(comentarioModuloModal);
         })
 
         //Modal de Eliminar Módulos
         $('#tablaModulos').on('click', '#btnEliminarModulo', function() {
             //Creación de variables para pasarle la información al Modal
             let idModal = $(this).data('idmodulo');
+            let aliasModal = $(this).data('alias');
             let calleModal = $(this).data('calle');
             let ciudadModal = $(this).data('ciudad');
             let provinciaModal = $(this).data('provincia');
@@ -356,6 +439,7 @@
             //Asignación del id del Módulo al input tipo hidden que pasará al backend
             $('#idModuloDelete').val(idModal);
             //Renderizar la información del Módulo en el Modal
+            $('#aliasDelete').html(aliasModal);
             $('#calleDelete').html(calleModal);
             $('#ciudadDelete').html(ciudadModal);
             $('#provinciaDelete').html(provinciaModal);
@@ -366,7 +450,7 @@
 </script>
 
 <script>
-    //JQuery UI para el DatePicker de la Agenda:
+    //jQuery-UI para el DatePicker de la Agenda:
     $(function() {
         var dateFormat = "dd-mm-yy",
         from = $("#fechaApertura").datepicker({
@@ -398,5 +482,16 @@
                 date = null;
             } return date;
         }
+    });
+
+    //jQuery-UI para las Tabs superiores de la Agenda:
+    $(function() {
+        $("#tabs").tabs();
+    });
+
+    //jQuery para las Tabs verticales de la Agenda:
+    $(function() {
+        $("#verticaltabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
+        $("#verticaltabs li").removeClass("ui-corner-top").addClass("ui-corner-left");
     });
 </script>

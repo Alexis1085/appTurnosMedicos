@@ -38,6 +38,7 @@ foreign key (idOS) references obras_sociales(idOS)
 -- Creación de la tabla de la entidad "Modulos de Consultorios": --
 create table modulos (
 idModulo int unsigned not null auto_increment,
+alias varchar(100) not null,
 calle varchar(100) not null,
 ciudad varchar(50) not null,
 provincia varchar(30) not null,
@@ -45,6 +46,7 @@ diaSemana tinyint unsigned not null,
 horaInicio time not null,
 duracion tinyint unsigned not null,
 cantidadTurnos tinyint unsigned not null,
+comentarioModulo varchar(300),
 usuarioMedico varchar(8) not null,
 primary key (idModulo),
 foreign key (usuarioMedico) references medicos(usuarioMedico)
@@ -68,8 +70,8 @@ foreign key (idOS) references obras_sociales(idOS)
 create table turnos (
 idTurno int unsigned not null auto_increment,
 idModulo int unsigned not null,
-dia date not null,
-hora time not null,
+turno datetime not null,
+comentarioTurno varchar(200),
 usuarioPaciente varchar(8),
 primary key (idTurno),
 foreign key (idModulo) references modulos(idModulo),

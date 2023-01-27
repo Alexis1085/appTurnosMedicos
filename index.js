@@ -325,6 +325,7 @@ app.post('/os_medicos', (req,res) => {
 app.post('/nuevomodulo', (req,res) => {
     //console.log(req.body);
     let datosNuevoModulo = {
+        alias: req.body.alias,
         calle: req.body.calle,
         ciudad: req.body.ciudad,
         provincia: req.body.provincia,
@@ -332,6 +333,7 @@ app.post('/nuevomodulo', (req,res) => {
         horaInicio: req.body.horaInicio,
         duracion: req.body.duracion,
         cantidadTurnos: req.body.cantidadTurnos,
+        comentarioModulo: req.body.comentarioModulo,
         usuarioMedico: req.session.datosMedico.usuarioMedico
     };
     conexion.query(`INSERT INTO modulos SET ?;`, datosNuevoModulo, err => {
@@ -343,6 +345,7 @@ app.post('/nuevomodulo', (req,res) => {
 //? POST para Modificar datos en la tabla Módulos:
 app.post('/updatemodulo', (req,res) => {
     let datosUpdateModulo = {
+        alias: req.body.alias,
         calle: req.body.calle,
         ciudad: req.body.ciudad,
         provincia: req.body.provincia,
@@ -350,6 +353,7 @@ app.post('/updatemodulo', (req,res) => {
         horaInicio: req.body.horaInicio,
         duracion: req.body.duracion,
         cantidadTurnos: req.body.cantidadTurnos,
+        comentarioModulo: req.body.comentarioModulo
     };
     conexion.query(`UPDATE modulos SET ? WHERE idModulo = ${req.body.idModulo};`, datosUpdateModulo, err => {
         if (err) throw err;
