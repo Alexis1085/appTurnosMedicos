@@ -9,8 +9,11 @@ const path = require('path');
 const hbs = require('hbs');
 const bcrypt = require('bcryptjs'); //Para encriptar en el backend las contraseñas de los usuarios
 const dayjs = require('dayjs'); //Dependencia para procesar información de fechas y tiempos
-var customParseFormat = require('dayjs/plugin/customParseFormat'); //Plug-in para trabajar con distintos formatos
+const customParseFormat = require('dayjs/plugin/customParseFormat'); //Plug-in para trabajar con distintos formatos
 dayjs.extend(customParseFormat);
+const relativeTime = require('dayjs/plugin/relativeTime'); //Plug-in para calcular tiempos entre fechas
+dayjs.extend(relativeTime);
+
 require('dotenv').config();
 /* Formato de las variables de entorno:
 SESSION_SECRET=
@@ -23,6 +26,7 @@ DB_NAME=
 EMAIL=
 EMAIL_PASS=
 */
+
 const session = require('express-session'); //Dependencia para crear sesiones de usuarios
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -108,17 +112,53 @@ app.get('/panelmedico', (req,res) => {
                 if (err) throw err;
                 let osMedico = result_os;
                 osMedico.map(function(aux) {
-                    if (aux.usuarioMedico == null){
+                    if (aux.usuarioMedico == null) {
                         aux.usuarioMedico = false;
                     } else {
                         aux.usuarioMedico = true;
                     }
                     return aux;
                 });
-                res.render('panelmedico', {
-                    datosMedico: req.session.datosMedico,
-                    datosObrasSociales: osMedico,
-                    datosModulos: result_mod                    
+                /* *SELECT para traer los datos necesarios para la Solapa Agenda. Son varias subquerys:
+                * Primero traigo todos los idModulos que corresponden al Medico
+                * Segundo hago un LEFT JOIN entre turnos y pacientes restringiendo con el idModulo del punto anterior
+                * Tercero hago un INNER JOIN con módulos para traer el alias
+                * Cuarto hago un LEFT JOIN con obras_sociales para traer el nombre de la OS
+                */
+                conexion.query(`SELECT t.idTurno, t.alias, t.turno, t.comentarioTurno, t.nombrePaciente, t.apellidoPaciente, t.fechaNacimiento, t.telefono, t.email, t.idOS, obras_sociales.nombreObraSocial FROM (
+                    SELECT modulos.alias, turn.* FROM modulos INNER JOIN (
+                        SELECT turnos.idTurno, turnos.idModulo, turnos.turno, turnos.comentarioTurno, pacientes.nombrePaciente, pacientes.apellidoPaciente, pacientes.fechaNacimiento, pacientes.telefono, pacientes.email, pacientes.idOS FROM turnos LEFT JOIN pacientes ON turnos.usuarioPaciente = pacientes.usuarioPaciente WHERE idModulo IN (
+                            SELECT idModulo FROM modulos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
+                        )
+                    ) AS turn ON modulos.idModulo = turn.idModulo
+                ) AS t LEFT JOIN obras_sociales ON t.idOS = obras_sociales.idOS;`, (err,result_turnos) => {
+                    if (err) throw err;
+                    //console.log(result_turnos);
+                    for (i=0; i< result_turnos.length; i++) {
+                        //! Al turno lo dividimos en 2 datos: "día" y "hora"
+                        result_turnos[i].diaTurno = dayjs(result_turnos[i].turno).format('DD/MM');
+                        result_turnos[i].horaTurno = dayjs(result_turnos[i].turno).format('HH:mm');
+                        //! A la fecha de nacimiento la transformamos en edad
+                        if (result_turnos[i].fechaNacimiento != null) {
+                            result_turnos[i].edad = dayjs(result_turnos[i].fechaNacimiento).to(result_turnos[i].turno, true);
+                        } else {
+                            result_turnos[i].edad = null;
+                        }
+                        //! Chequeamos si la Obra Social es admitida por el Médico. Si no, la cambiamos a 'PARTICULAR'
+                        for (j=0; j< osMedico.length; j++) {
+                            if( osMedico[j].idOS == result_turnos[i].idOS && osMedico[j].usuarioMedico == false) {
+                                result_turnos[i].idOS = 1;
+                                result_turnos[i].nombreObraSocial = 'PARTCULAR';
+                            }
+                        }
+                    }
+                    //console.log(result_turnos);
+                    res.render('panelmedico', {
+                        datosMedico: req.session.datosMedico,
+                        datosObrasSociales: osMedico,
+                        datosModulos: result_mod,
+                        datosTurnos: result_turnos
+                    });
                 })
             })
         })
