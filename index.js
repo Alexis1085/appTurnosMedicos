@@ -119,25 +119,40 @@ app.get('/panelmedico', (req,res) => {
                     }
                     return aux;
                 });
-                /* *SELECT para traer los datos necesarios para la Solapa Agenda. Son varias subquerys:
+                // Preparo un nuevo arreglo para organizar los datos para la Solapa Agenda:
+                let agenda = [];
+                let dia = {
+                    ordenDia: 0,
+                    diaTurno: 0,
+                    turnos: []
+                };
+                for (i=0; i< result_mod.length; i++) {
+                    agenda[i] = {
+                        idModulo: result_mod[i].idModulo,
+                        alias: result_mod[i].alias,
+                        cantidadTurnos: result_mod[i].cantidadTurnos,
+                        dia: []
+                    };
+                }
+                //console.log(agenda);
+                //console.log(agenda[0].dia);
+                //console.log(agenda[0].dia[0].turnos);
+                /* *SELECT traer los datos necesarios para llenar la propiedad 'turnos' de la agenda. Son varias subquerys:
                 * Primero traigo todos los idModulos que corresponden al Medico
                 * Segundo hago un LEFT JOIN entre turnos y pacientes restringiendo con el idModulo del punto anterior
-                * Tercero hago un INNER JOIN con módulos para traer el alias
-                * Cuarto hago un LEFT JOIN con obras_sociales para traer el nombre de la OS
+                * Tercero hago un LEFT JOIN con obras_sociales para traer el nombre de la OS
                 */
-                conexion.query(`SELECT t.idTurno, t.alias, t.turno, t.comentarioTurno, t.nombrePaciente, t.apellidoPaciente, t.fechaNacimiento, t.telefono, t.email, t.idOS, obras_sociales.nombreObraSocial FROM (
-                    SELECT modulos.alias, turn.* FROM modulos INNER JOIN (
-                        SELECT turnos.idTurno, turnos.idModulo, turnos.turno, turnos.comentarioTurno, pacientes.nombrePaciente, pacientes.apellidoPaciente, pacientes.fechaNacimiento, pacientes.telefono, pacientes.email, pacientes.idOS FROM turnos LEFT JOIN pacientes ON turnos.usuarioPaciente = pacientes.usuarioPaciente WHERE idModulo IN (
-                            SELECT idModulo FROM modulos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
-                        )
-                    ) AS turn ON modulos.idModulo = turn.idModulo
+                conexion.query(`SELECT t.idModulo, t.idTurno, t.turno, t.comentarioTurno, t.nombrePaciente, t.apellidoPaciente, t.fechaNacimiento, t.telefono, t.email, t.idOS, obras_sociales.nombreObraSocial FROM (
+                    SELECT turnos.idModulo, turnos.idTurno, turnos.turno, turnos.comentarioTurno, pacientes.nombrePaciente, pacientes.apellidoPaciente, pacientes.fechaNacimiento, pacientes.telefono, pacientes.email, pacientes.idOS FROM turnos LEFT JOIN pacientes ON turnos.usuarioPaciente = pacientes.usuarioPaciente WHERE idModulo IN (
+                        SELECT idModulo FROM modulos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
+                    )
                 ) AS t LEFT JOIN obras_sociales ON t.idOS = obras_sociales.idOS;`, (err,result_turnos) => {
                     if (err) throw err;
                     //console.log(result_turnos);
                     for (i=0; i< result_turnos.length; i++) {
                         //! Al turno lo dividimos en 2 datos: "día" y "hora"
                         result_turnos[i].diaTurno = dayjs(result_turnos[i].turno).format('DD/MM');
-                        result_turnos[i].horaTurno = dayjs(result_turnos[i].turno).format('HH:mm');
+                        result_turnos[i].horaTurno = dayjs(result_turnos[i].turno).add(3, 'h').format('HH:mm');
                         //! A la fecha de nacimiento la transformamos en edad
                         if (result_turnos[i].fechaNacimiento != null) {
                             result_turnos[i].edad = dayjs(result_turnos[i].fechaNacimiento).to(result_turnos[i].turno, true);
@@ -148,16 +163,40 @@ app.get('/panelmedico', (req,res) => {
                         for (j=0; j< osMedico.length; j++) {
                             if( osMedico[j].idOS == result_turnos[i].idOS && osMedico[j].usuarioMedico == false) {
                                 result_turnos[i].idOS = 1;
-                                result_turnos[i].nombreObraSocial = 'PARTCULAR';
+                                result_turnos[i].nombreObraSocial = 'PARTICULAR';
                             }
                         }
                     }
                     //console.log(result_turnos);
+                    // Algoritmo para completar los datos de la Agenda.'idDia' y 'diaTurno' con los que luego llenar el arreglo "turnos":
+                    for (i=0; i< agenda.length; i++) {
+                        let indiceTurnos = 0;
+                        let indiceDia = 0;
+                        for (j=0; j< result_turnos.length; j++) {
+                            if (agenda[i].idModulo == result_turnos[j].idModulo) {
+                                dia.turnos[indiceTurnos] = result_turnos[j]
+                                indiceTurnos++
+                                if (indiceTurnos == agenda[i].cantidadTurnos) {
+                                    agenda[i].dia[indiceDia] = Object.assign({},dia); // Comando para clonar el objeto y no su referencia. El problema es que los objetos anidados no se clonan
+                                    agenda[i].dia[indiceDia].ordenDia = indiceDia +1;
+                                    agenda[i].dia[indiceDia].diaTurno = result_turnos[j].diaTurno;
+                                    agenda[i].dia[indiceDia].turnos = Array.from(dia.turnos); // Comando para clonar el arreglo
+                                    //console.log(agenda[i].dia[indiceDia].turnos);
+                                    indiceDia++;
+                                    indiceTurnos = 0;
+                                    dia.turnos.splice(0);
+                                }
+                            }
+                        }
+                        //console.log(agenda[i].dia);
+                    }
+                    //console.log(agenda);
+                    //console.log(agenda[0].turnos);
                     res.render('panelmedico', {
                         datosMedico: req.session.datosMedico,
                         datosObrasSociales: osMedico,
                         datosModulos: result_mod,
-                        datosTurnos: result_turnos
+                        datosAgenda: agenda
                     });
                 })
             })
@@ -439,7 +478,7 @@ app.post('/abriragenda', (req,res) => {
                 //! Creo la variable "turnos" tipo 'Date' y con el formato apropiado para insertar los valores en la base de datos:
                 let turnos = new Date;
                 for (j=0; j< result[0].cantidadTurnos; j++) {
-                    turnos = dayjs(auxDate).format('YYYYMMDDHHmmss'); //Los datos tipo 'Date' no son como los String o Number. Cuando se asignan con '=' en realidad se referencian y no se copian. Para hacer una copia podía hacer lo siguiente: "turnos[0].setTime(auxDate.getTime())" Yo usé la dependencia 'dayjs' porque ya la había instalado y porque me permite ajustar el formato para poder acer luego el INSERT a la Base de Datos. De la otra forma no lo podía hacer porque el formato en el que quedaba turnos no me lo permitía.
+                    turnos = dayjs(auxDate).format('YYYYMMDDHHmmss'); //Los datos tipo 'Date' no son como los String o Number. Cuando se asignan con '=' en realidad se referencian y no se copian. Para hacer una copia podía hacer lo siguiente: "turnos[0].setTime(auxDate.getTime())" Yo usé la dependencia 'dayjs' porque ya la había instalado y porque me permite ajustar el formato para poder hacer luego el INSERT a la Base de Datos. De la otra forma no lo podía hacer porque el formato en el que quedaba turnos no me lo permitía.
                     conexion.query(`INSERT INTO turnos (idModulo, turno) VALUES(${req.body.idModulo}, ${turnos});`, err => {if (err) throw err;}); //En la base de datos la hora de los turnos queda guardada como -3 horas por el huso horario. Luego cuando hago el SELECT viene la hora correcta.
                     auxDate.setMinutes(auxDate.getMinutes() + result[0].duracion);
                 }
@@ -459,6 +498,6 @@ app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);
 });
 
-//TODO Panel de los médicos ---> Agenda
+//TODO Panel de los médicos ---> Agenda ----> Armar tabla interna de la agenda con los datos de cada turno // Configurar JQuery-UI para que se puedan reorganizar las solapas superiores // Filtrar desde el Backend para que aparezcan sólo los turnos futuros // Configurar dayjs.relativeTime para que la edad aparezca en español y cambiar los puntos de quiebre
 
 //TODO Desarrollar el panel de los pacientes ---> (Perfil) // Buscador // Mis turnos

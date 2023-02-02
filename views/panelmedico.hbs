@@ -194,7 +194,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="comentarioModulo" class="form-label">Agregue un mensaje para el paciente:</label>
-                                <textarea class="form-control" name="comentarioModulo" id="comentarioModulo" rows="4" placeholder="Ejemplo: qué documentación precisa al concurrir al turno, cuánto tiempo antes debe presentarse, qué información es necesaria que el paciente aclare al momento de reservar el turno" required></textarea>
+                                <textarea class="form-control" name="comentarioModulo" id="comentarioModulo" rows="4" placeholder="" required></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="alias" class="form-label">Alias:</label>
@@ -313,38 +313,28 @@
             {{!Tabs de jQuery-UI para mostrar la agenda:}}
             <div id="tabs" style="border: none;">
                 <ul>
-                    <li><a href="#tabs-1">Nunc tincidunt</a></li>
-                    <li><a href="#tabs-2">Proin dolor</a></li>
-                    <li><a href="#tabs-3">Aenean lacinia</a></li>
-                    <li><a href="#tabs-3">Aenean lacinialalallalalallalalallalalalalallalallalalalal</a></li>
+                    {{#each datosAgenda}}
+                    <li><a href="#tabs-{{idModulo}}">{{alias}}</a></li>
+                    {{/each}}
                 </ul>
-                <div id="tabs-1">
-                    <div id="verticaltabs">
+                {{#each datosAgenda}}
+                <div id="tabs-{{idModulo}}">
+                    <div class="verticaltabs">
                         <ul>
-                            <li><a href="#tabsV-1">Nunc tincidunt</a></li>
-                            <li><a href="#tabsV-2">Proin dolor</a></li>
-                            <li><a href="#tabsV-3">Aenean lacinia</a></li>
+                            {{#each dia}}
+                            <li><a href="#tabsV{{idModulo}}-{{ordenDia}}">{{diaTurno}}</a></li>
+                            {{/each}}
                         </ul>
-                        <div id="tabsV-1">
-                            <h2>Content heading 1</h2>
-                            <p>Proin s. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae odit ducimus provident laudantium voluptates ut dignissimos ipsam eos, accusantium, accusamus quos error eius voluptas et iusto voluptate laborum placeat expedita.</p>
+                        {{#each dia}}
+                        <div id="tabsV{{idModulo}}-{{ordenDia}}">
+                            {{#each turnos}}
+                            <h2>{{idTurno}}-{{horaTurno}}-{{nombrePaciente}}</h2>
+                            {{/each}}
                         </div>
-                        <div id="tabsV-2">
-                            <h2>Content heading 2</h2>
-                            <p>Morbi uris consectetur tortor et purus.</p>
-                        </div>
-                        <div id="tabsV-3">
-                            <h2>Content heading 3</h2>
-                            <p>Mauris eleusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
-                        </div>
+                        {{/each}}
                     </div>
                 </div>
-                <div id="tabs-2">
-                    <p>Morbi tincidunt, dui sit amet facilisis feugiat, odi.</p>
-                </div>
-                <div id="tabs-3">
-                    <p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aendrerit.</p>
-                </div>
+                {{/each}}
             </div>
         </div>
         
@@ -492,7 +482,7 @@
 
     //jQuery para las Tabs verticales de la Agenda:
     $(function() {
-        $("#verticaltabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
-        $("#verticaltabs li").removeClass("ui-corner-top").addClass("ui-corner-left");
+        $(".verticaltabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
+        $(".verticaltabs li").removeClass("ui-corner-top").addClass("ui-corner-left");
     });
 </script>
