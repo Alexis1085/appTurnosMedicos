@@ -327,9 +327,32 @@
                         </ul>
                         {{#each dia}}
                         <div id="tabsV{{idModulo}}-{{ordenDia}}">
-                            {{#each turnos}}
-                            <h2>{{idTurno}}-{{horaTurno}}-{{nombrePaciente}}</h2>
-                            {{/each}}
+                            <table class="table table-striped table-sm fs-6">
+                                <thead>
+                                    <tr class="">
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="overflow-auto">
+                                {{#each turnos}}
+                                    <tr>
+                                        <th scope="row" class="horarioAgenda">{{horaTurno}}</th>
+                                        <td>{{nombrePaciente}} {{apellidoPaciente}}</td>
+                                        <td class="text-center">{{edad}}</td>
+                                        <td class="text-center">{{telefono}}</td>
+                                        <td>{{email}}</td>
+                                        <td>{{nombreObraSocial}}</td>
+                                        <td>{{comentarioTurno}}</td>
+                                    </tr>
+                                {{/each}}
+                                </tbody>
+                            </table>
                         </div>
                         {{/each}}
                     </div>
@@ -475,9 +498,25 @@
         }
     });
 
-    //jQuery-UI para las Tabs superiores de la Agenda:
+    //jQuery-UI para las Tabs superiores de la Agenda (modo 'Sortable': que se puede alterar el orden):
+    //! No Anda!!
     $(function() {
-        $("#tabs").tabs();
+        var tabs = $("#tabs").tabs();
+        var previouslyFocused = false;
+
+        tabs.find(".ui-tabs-nav").sortable({
+            axis: "x",
+            // Sortable removes focus, so we need to restore it if the tab was focused prior to sorting
+            start: function(event, ui) {
+                previouslyFocused = document.activeElement === ui.item[0];
+            },
+            stop: function(event, ui) {
+                tabs.tabs("refresh");
+                if (previouslyFocused) {
+                    ui.item.trigger("focus");
+                }
+            }
+        });
     });
 
     //jQuery para las Tabs verticales de la Agenda:

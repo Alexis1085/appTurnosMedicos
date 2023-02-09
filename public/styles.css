@@ -3,3 +3,13 @@
     background: rgb(143,236,255);
     background: linear-gradient(63deg, rgba(143,236,255,1) 0%, rgba(255,250,155,1) 27%, rgba(0,212,255,1) 100%);
 }
+
+.logBox {
+    max-width: 400px;
+}
+
+.horarioAgenda {
+    border-right: solid 2px gray;
+    text-align: right;
+    width: fit-content; /* No me funciona */
+}

@@ -134,18 +134,19 @@ app.get('/panelmedico', (req,res) => {
                         dia: []
                     };
                 }
+                let hoy = dayjs().startOf('d').toISOString(); // El presente día a las 00:00 hs
                 //console.log(agenda);
                 //console.log(agenda[0].dia);
                 //console.log(agenda[0].dia[0].turnos);
                 /* *SELECT traer los datos necesarios para llenar la propiedad 'turnos' de la agenda. Son varias subquerys:
                 * Primero traigo todos los idModulos que corresponden al Medico
-                * Segundo hago un LEFT JOIN entre turnos y pacientes restringiendo con el idModulo del punto anterior
+                * Segundo hago un LEFT JOIN entre turnos y pacientes restringiendo con el idModulo del punto anterior y para todos los turnos posteriores a hoy inclusive
                 * Tercero hago un LEFT JOIN con obras_sociales para traer el nombre de la OS
                 */
                 conexion.query(`SELECT t.idModulo, t.idTurno, t.turno, t.comentarioTurno, t.nombrePaciente, t.apellidoPaciente, t.fechaNacimiento, t.telefono, t.email, t.idOS, obras_sociales.nombreObraSocial FROM (
                     SELECT turnos.idModulo, turnos.idTurno, turnos.turno, turnos.comentarioTurno, pacientes.nombrePaciente, pacientes.apellidoPaciente, pacientes.fechaNacimiento, pacientes.telefono, pacientes.email, pacientes.idOS FROM turnos LEFT JOIN pacientes ON turnos.usuarioPaciente = pacientes.usuarioPaciente WHERE idModulo IN (
                         SELECT idModulo FROM modulos WHERE usuarioMedico = '${req.session.datosMedico.usuarioMedico}'
-                    )
+                    ) AND turnos.turno > '${hoy}'
                 ) AS t LEFT JOIN obras_sociales ON t.idOS = obras_sociales.idOS;`, (err,result_turnos) => {
                     if (err) throw err;
                     //console.log(result_turnos);
@@ -168,7 +169,7 @@ app.get('/panelmedico', (req,res) => {
                         }
                     }
                     //console.log(result_turnos);
-                    // Algoritmo para completar los datos de la Agenda.'idDia' y 'diaTurno' con los que luego llenar el arreglo "turnos":
+                    // Algoritmo para completar los datos de la Agenda.'ordenDia' y 'diaTurno' con los que luego llenar el arreglo "turnos":
                     for (i=0; i< agenda.length; i++) {
                         let indiceTurnos = 0;
                         let indiceDia = 0;
@@ -442,20 +443,34 @@ app.post('/updatemodulo', (req,res) => {
 
 //? POST para Eliminar Módulos:
 app.post('/deletemodulo', (req,res) => {
-    //console.log(req.body);
-    conexion.query(`DELETE FROM modulos WHERE idModulo = ${req.body.idModulo};`, err => {
+    //* Sólo se podrán eliminar los Módulos que no tengan turnos vigentes
+    let hoy = dayjs().startOf('d').toISOString(); // El presente día a las 00:00 hs
+    conexion.query(`SELECT DISTINCT idModulo FROM turnos WHERE turno > '${hoy}';`, (err, result) => {
         if (err) throw err;
-        res.redirect('/panelmedico');
+        let sePuede = true;
+        for (i=0; i< result.length; i++) {
+            if (result[i].idModulo == req.body.idModulo) {
+                res.send('<h4>No se puede eliminar el Modulo porque aun existen turnos vigentes asociados a él</h4><a href="/panelmedico">Volver</a>');
+                sePuede = false;
+                break;
+            }
+        }
+        if (sePuede) {
+            conexion.query(`DELETE FROM modulos WHERE idModulo = ${req.body.idModulo};`, err => {
+                if (err) throw err;
+            });
+            res.redirect('/panelmedico');
+        }
     })
 });
 
 //? POST para Abrir Agenda y crear los turnos:
 app.post('/abriragenda', (req,res) => {
     console.log(req.body);
-    //! Como uso JQueryUI en el frontend los inputs de fechas en realidad son tipo text. Así que uso la función "string_a_date" declarada arriba al principio para convertir los datos en tipo 'Date':
+    // Como uso JQueryUI en el frontend los inputs de fechas en realidad son tipo text. Así que uso la función "string_a_date" declarada arriba al principio para convertir los datos en tipo 'Date':
     //let fechaApertura = string_a_date(req.body.fechaApertura); 
     //let fechaCierre = string_a_date(req.body.fechaCierre);
-    // No lo uso porque lo implemento con 'dayjs'
+    //! No lo uso porque lo implemento con 'dayjs'
     let fechaApertura = new Date(dayjs(req.body.fechaApertura, "DD-MM-YYYY"));
     let fechaCierre = new Date(dayjs(req.body.fechaCierre, "DD-MM-YYYY"));
     fechaCierre.setHours(23,59);
@@ -498,6 +513,6 @@ app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);
 });
 
-//TODO Panel de los médicos ---> Agenda ----> Armar tabla interna de la agenda con los datos de cada turno // Configurar JQuery-UI para que se puedan reorganizar las solapas superiores // Filtrar desde el Backend para que aparezcan sólo los turnos futuros // Configurar dayjs.relativeTime para que la edad aparezca en español y cambiar los puntos de quiebre
+//TODO Panel de los médicos ---> Agenda ---->  Configurar dayjs.relativeTime para que la edad aparezca en español y cambiar los puntos de quiebre // Configurar JQuery-UI para que se puedan reorganizar las solapas superiores (no me anda) // Cambiar el uso de cantidadTurnos en Agenda para evitar conflictos cuando se modifican los modulos // Restringir Abrir Agenda para no duplicar los turnos // Restringir Eliminar Modulos para que se pueda hacer sólo si no hay turnos vigentes (Esto está hecho. El tema es que una vez que abrimos agenda y se crean turnos vinculados al idModulo SQL o Workbench no me los deja eliminar más y me explota. Lo que se me ocurre es que TODOS los "Eliminar" deberían a pasar a ser una columna extra en la tabla tipo boolean de Habilitado/Deshabilitado. Para eso hay que cambiar la base de datos y los POSTs). 
 
 //TODO Desarrollar el panel de los pacientes ---> (Perfil) // Buscador // Mis turnos
