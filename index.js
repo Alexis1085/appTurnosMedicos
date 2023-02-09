@@ -456,9 +456,8 @@ app.post('/deletemodulo', (req,res) => {
             }
         }
         if (sePuede) {
-            conexion.query(`DELETE FROM modulos WHERE idModulo = ${req.body.idModulo};`, err => {
-                if (err) throw err;
-            });
+            conexion.query(`DELETE FROM turnos WHERE idModulo = ${req.body.idModulo};`, err => { if (err) throw err; });
+            conexion.query(`DELETE FROM modulos WHERE idModulo = ${req.body.idModulo};`, err => { if (err) throw err; });
             res.redirect('/panelmedico');
         }
     })
@@ -513,6 +512,6 @@ app.listen(port, () => {
     console.log(`Servidor conectado al Puerto ${port}`);
 });
 
-//TODO Panel de los médicos ---> Agenda ---->  Configurar dayjs.relativeTime para que la edad aparezca en español y cambiar los puntos de quiebre // Configurar JQuery-UI para que se puedan reorganizar las solapas superiores (no me anda) // Cambiar el uso de cantidadTurnos en Agenda para evitar conflictos cuando se modifican los modulos // Restringir Abrir Agenda para no duplicar los turnos // Restringir Eliminar Modulos para que se pueda hacer sólo si no hay turnos vigentes (Esto está hecho. El tema es que una vez que abrimos agenda y se crean turnos vinculados al idModulo SQL o Workbench no me los deja eliminar más y me explota. Lo que se me ocurre es que TODOS los "Eliminar" deberían a pasar a ser una columna extra en la tabla tipo boolean de Habilitado/Deshabilitado. Para eso hay que cambiar la base de datos y los POSTs). 
+//TODO Panel de los médicos ---> Agenda ---->  Configurar dayjs.relativeTime para que la edad aparezca en español y cambiar los puntos de quiebre // Configurar JQuery-UI para que se puedan reorganizar las solapas superiores (no me anda) // Cambiar el uso de cantidadTurnos en Agenda para evitar conflictos cuando se modifican los modulos // Restringir Abrir Agenda para no duplicar los turnos // Restringir Eliminar Modulos para que se pueda hacer sólo si no hay turnos vigentes (Esto está hecho. El tema es que una vez que abrimos agenda y se crean turnos vinculados al idModulo SQL o Workbench no me los deja eliminar más y me explota. Lo arreglé eliminando antes todos los turnos (que obviamente ya son viejos) vinculados al idModulo, pero así se elimina información que uede ser útil para los pacientes y para el resto de la App (como la posibilidad de crear un historial para los médicos). Lo que se me ocurre es que TODOS los "Eliminar" deberían a pasar a ser una columna extra en la tabla tipo boolean de Habilitado/Deshabilitado. Para eso hay que cambiar la base de datos y los POSTs). 
 
 //TODO Desarrollar el panel de los pacientes ---> (Perfil) // Buscador // Mis turnos
