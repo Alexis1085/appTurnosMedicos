@@ -12,7 +12,39 @@ const dayjs = require('dayjs'); //Dependencia para procesar información de fech
 const customParseFormat = require('dayjs/plugin/customParseFormat'); //Plug-in para trabajar con distintos formatos
 dayjs.extend(customParseFormat);
 const relativeTime = require('dayjs/plugin/relativeTime'); //Plug-in para calcular tiempos entre fechas
-dayjs.extend(relativeTime);
+
+var config = {
+    thresholds: [
+        {l: 'd', r: 1},
+        {l: 'dd', r: 30, d: 'day'},
+        {l: 'M', r: 1},
+        {l: 'MM', r: 22, d: 'month'},
+        {l: 'y', r: 2},
+        {l: 'yy', d: 'year'}
+    ]
+};
+
+dayjs.extend(relativeTime, config);
+const updateLocale = require('dayjs/plugin/updateLocale'); //Plug-in para configuración de dayjs 
+dayjs.extend(updateLocale);
+// Cambio del idioma:
+dayjs.updateLocale('en', {
+    relativeTime: {
+        future: "en %s",
+        past: "hace %s",
+        s: "algunos segundos",
+        m: "un minuto",
+        mm: "%d minutos",
+        h: "una hora",
+        hh: "%d horas",
+        d: "1 día",
+        dd: "%d días",
+        M: "1 mes",
+        MM: "%d meses",
+        y: "1 año",
+        yy: "%d años"
+    }
+})
 
 require('dotenv').config();
 /* Formato de las variables de entorno:
@@ -270,7 +302,7 @@ app.post('/nuevoPaciente', async (req,res) => {
         //console.log(`1 nuevo usuario agregado a la base de datos`);
         req.session.loggedin = true;
         req.session.rol = 'paciente';
-        conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = '${datosNuevoPaciente.usuarioPaciente}';`, (err,result) => {
+        conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.idOS, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = '${datosNuevoPaciente.usuarioPaciente}';`, (err,result) => {
             if (err) throw err;
             result[0].fechaNacimiento = dayjs(result[0].fechaNacimiento).format('YYYY-MM-DD');
             req.session.datosPaciente = result[0];
@@ -305,7 +337,7 @@ app.post('/loginpaciente', async (req,res) => {
     let usuario = req.body.loginUsuarioPaciente;
     let password = req.body.loginPassPaciente;
     let hashPassword = await bcrypt.hash(password, 8); //? Para qué hashea el password que viene si después no lo usa para la comparación?
-    conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = '${usuario}';`, async (err,result) => {
+    conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.idOS, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = '${usuario}';`, async (err,result) => {
         if (err) {
             console.log(err);
             res.send("Error de conexión");
@@ -355,7 +387,7 @@ app.post('/actualizarpaciente', (req,res) => {
     conexion.query(`UPDATE pacientes SET ? WHERE usuarioPaciente = "${req.session.datosPaciente.usuarioPaciente}";`, updatePaciente, err => {
         if (err) throw err;
         //console.log("Paciente actualizado");
-        conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = "${req.session.datosPaciente.usuarioPaciente}";`, (err,result) => {
+        conexion.query(`SELECT p.usuarioPaciente, p.passPaciente, p.nombrePaciente, p.apellidoPaciente, p.fechaNacimiento, p.telefono, p.email, os.idOS, os.nombreObraSocial FROM pacientes AS p INNER JOIN obras_sociales AS os ON p.idOS = os.idOS WHERE usuarioPaciente = "${req.session.datosPaciente.usuarioPaciente}";`, (err,result) => {
             if (err) throw err;
             result[0].fechaNacimiento = dayjs(result[0].fechaNacimiento).format('YYYY-MM-DD');
             req.session.datosPaciente = result[0];

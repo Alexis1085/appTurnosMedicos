@@ -1,6 +1,6 @@
 
 <div class="d-flex justify-content-around mt-2">
-    <h2>Bienvenido usuario {{datosPaciente.nombrePaciente}} {{datosPaciente.apellidoPaciente}}</h2>
+    <h3>Bienvenido usuario {{datosPaciente.nombrePaciente}} {{datosPaciente.apellidoPaciente}}</h3>
     <a href="/logout" class="btn btn-dark">Cerrar sesión</a>
 </div>
 <br>
@@ -83,7 +83,7 @@
                             <div class="mb-3">
                                 <label for="obraSocial" class="form-label">Obra Social, Mutual o Prepaga</label>
                                 <select class="form-select" name="obraSocial" id="obraSocial" required>
-                                    <option value="{{datosPaciente.nombreObraSocial}}" label="{{datosPaciente.nombreObraSocial}}"></option>
+                                    <option value="{{datosPaciente.idOS}}" label="{{datosPaciente.nombreObraSocial}}"></option>
                                     {{#each datosObrasSociales}}
                                     <option value="{{idOS}}" label="{{nombreObraSocial}}">
                                     {{/each}}
